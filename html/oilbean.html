@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/oilbean.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="我的油豆">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="oilbean-item">
+            <ul>
+                <li>
+                    <b>{{myAsset.totalAmount}}</b>
+                    总数量
+                </li>
+                <li>
+                    <b>{{myAsset.availableAmount}}</b>
+                    可用
+                </li>
+                <li>
+                    <b>{{myAsset.lockedAmount}}</b>
+                    待释放
+                </li>
+            </ul>
+            <div class="options">
+                <a href="transference.html">马上加油</a>
+            </div>
+        </div>
+        <div class="oilbean-list">
+            <ol>
+                <li>
+                    <span class="time">时间</span>
+                    <span class="title">类型</span>
+                    <span class="num">金额</span>
+                </li>
+            </ol>
+            <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+                <li v-for="item in myAssetList">
+                    <span class="time">{{item.usedTime}}</span>
+                    <span class="title">{{item.typeName}}</span>
+                    <span class="num">{{item.amount}}元</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var app = new Vue({
+            el: '#app',
+            data:{
+                myAsset: {
+                    totalAmount: 0,
+                    availableAmount: 0,
+                    lockedAmount: 0
+                },
+                skipCount: 0,
+                isNodata: false,
+                loading: false,
+                myAssetList: []
+            },
+            mounted: function(){
+            },
+            methods: {
+                loadMore: function(){
+                    if(this.isNodata)return;
+                    if(!this.loading){
+                        this.loadData('/api/services/app/MyProfile/GetMyPoint?maxResultCount=20&skipCount=',this.skipCount);
+                    }
+                    this.loading = true;
+                },
+
+                loadData: function(apiUrl, skipCount){
+                    apiUrl = apiUrl + skipCount;
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.myAsset = data.body.result.myAsset;
+                        this.myAssetList.push.apply(this.myAssetList,data.body.result.myAssetLogs.items);
+                        this.totalCount = data.body.result.myAssetLogs.totalCount;
+                        this.loading = false;
+                        this.skipCount += 20;
+                        this.isNodata = false;
+                        if(this.skipCount >= this.totalCount){
+                            this.isNodata = true;
+                            this.$toast('没有更多数据了');
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+            }
+        })
+    </script>
+</body>
+</html>

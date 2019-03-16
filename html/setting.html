@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/setting.css?3232344">
+    <script src="../js/vue.js"></script>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="人个设置">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="setting-item">
+            <ul>
+                <li class="clearfix" @click="openSetting(1)">
+                    <span class="title">头像</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b><img :src="mySetting.profileLogo" alt=""></b>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(2)">
+                    <span class="title">昵称</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b>{{mySetting.nickName}}</b>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(3)">
+                    <span class="title">手机号</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b>{{mySetting.phoneNumber}}</b>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(4)">
+                    <span class="title">修改密码</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(5)">
+                    <span class="title">我的邮箱</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b>{{mySetting.emailAddress}}</b>
+                    </span>
+                </li>
+                <li class="clearfix">
+                    <span class="title">真实姓名</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b>{{mySetting.realName}}</b>
+                    </span>
+                </li>
+            </ul>
+            <ul>
+                <li class="clearfix" @click="openSetting(6)">
+                    <span class="title">收货地址</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                    </span>
+                </li>
+                <li class="clearfix">
+                    <span class="title">绑定微信</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                        <b v-show="wechatBinding">已绑定</b>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(7)">
+                    <span class="title">绑定我的油卡</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                    </span>
+                </li>
+                <li class="clearfix" @click="openSetting(8)">
+                    <span class="title">我的二维码</span>
+                    <span class="text">
+                        <i class="icon iconfont">&#xe665;</i>
+                    </span>
+                </li>
+            </ul>
+            <div class="button">
+                <mt-button size="large" type="danger">退出登录</mt-button>
+            </div>
+        </div>
+        <div class="editsetting-item" :class="{show: showEditsetting}">
+            <nick-name-component :nick-name="nickName" :is-show-nick-name="isShowNickName" :is-edit-nick-name-ok="isEditNickNameOk"></nick-name-component>
+            <phone-number-component 
+                :is-show-phone-number="isShowPhoneNumber"
+                :show-old-phone="showOldPhone"
+                :old-phone-code="oldPhoneCode"
+                :is-edit-old-phone-ok="isEditOldPhoneOk"
+                :new-phone-number="newPhoneNumber"
+                :new-phone-code="newPhoneCode"
+                :is-new-phone-can-submit="isNewPhoneCanSubmit">
+            </phone-number-component>
+            <pass-word-component 
+                :is-show-pass-word="isShowPassWord"
+                :pass-word-phone-code="passWordPhoneCode"
+                :new-pass-word="newPassWord"
+                :new-confirm-pass-word="newConfirmPassWord"
+                :is-pass-word-can-submit="isPassWordCanSubmit">
+            </pass-word-component>
+            <email-component 
+                :is-show-email="isShowEmail"
+                :new-email="newEmail"
+                :is-email-can-submit="isEmailCanSubmit">
+            </email-component>
+        </div>
+    </div>
+    <script src="../components/editNickName.js"></script>
+    <script src="../components/editPhoneNumber.js"></script>
+    <script src="../components/editPassWord.js"></script>
+    <script src="../components/editEmail.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+
+        var wx;
+        var app = new Vue({
+            el: '#app',
+            data:{
+                showEditsetting: false,
+                isShowNickName: false,
+                isShowPhoneNumber: false,
+                isShowPassWord: false,
+                isShowEmail: false,
+                
+                wechatBinding: false,
+                mySetting: {
+                    nickName: '',
+                    phoneNumber: '',
+                    emailAddress: '',
+                    realName: '',
+                    profileLogo: '../images/buddha_icon.png'
+                },
+
+                nickName: '',
+                isEditNickNameOk: true,
+
+                oldPhoneCode: '',
+                isEditOldPhoneOk: true,
+                newPhoneNumber: '',
+                isNewPhoneNumberOk: false,
+                newPhoneCode: '',
+                isNewPhoneCodeOk: false,
+                isNewPhoneCanSubmit: true,
+                showOldPhone: true,
+                getphonecodestatus: false,
+
+                passWordPhoneCode: '',
+                newPassWord: '',
+                newConfirmPassWord: '',
+                isPassWordCanSubmit: true,
+                isNewPassWordOk: false,
+                isNewConfirmPassWordOk: false,
+                isPassWordPhoneCodeOk: false,
+
+                newEmail: '',
+                isEmailCanSubmit: true
+
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/MyProfile/GetMySetting');
+            },
+            methods: {
+                loadData: function(apiUrl, skipCount){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.wechatBinding = data.body.result.wechatBinding;
+                        this.mySetting = data.body.result.mySetting;
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+
+                
+
+                /*
+                    @return id;
+                    1---修改头像
+                    2---昵称
+                    3---手机号
+                    4---修改密码
+                    5---我的邮箱
+                    6---收货地址
+                    7---绑定我的油卡
+                    8---我的二维码
+                */
+                openSetting: function(id){
+                    this.isShowNickName = false;
+                    this.isShowPhoneNumber = false;
+                    this.isShowPassWord = false;
+                    this.isShowEmail = false;
+
+                    if(id == 1){
+                        this.changeAvatar();
+                    }else if(id == 2){
+                        this.showEditsetting = true;
+                        this.isShowNickName = true;
+                    }else if(id == 3){
+                        this.showEditsetting = true;
+                        this.isShowPhoneNumber = true;
+                    }else if(id == 4){
+                        this.showEditsetting = true;
+                        this.isShowPassWord = true;
+                    }else if(id == 5){
+                        this.showEditsetting = true;
+                        this.isShowEmail = true;
+                    }else if(id == 6){
+                        window.location.href = 'address.html';
+                    }else if(id == 7){
+                        window.location.href = 'oilcard.html';
+                    }else if(id == 8){
+                        window.location.href = 'qrcode.html';
+                    }
+                },
+
+                changeAvatar: function(){
+                    var that = this;
+                    wx.ready(function(){
+                        wx.chooseImage({
+                            count: 1, // 默认9
+                            sizeType: ['original'], 
+                            sourceType: ['album'], 
+                            success: function (res) {
+                                that.wxupload(res.localIds[0]);
+                            }
+                        });
+                    });
+                },
+
+                wxupload: function(localId){
+                    var that = this;
+                    wx.ready(function(){
+                        wx.getLocalImgData({
+                            localId: localId,
+                            success: function (res) {
+                                var localData = res.localData;
+                                if (localData.indexOf('data:image') != 0) {
+                                    localData = 'data:image/jpeg;base64,' +  localData;
+                                }else{
+                                    localData = localData.replace(/\r|\n/g, '').replace('data:image/jgp', 'data:image/jpeg');
+                                }
+
+                                that.mySetting.profileLogo = localData;
+                                that.submitPhoto(localData);
+                            }
+                        });
+                    });
+                },
+
+                submitPhoto: function(baseData){
+                    var inviteCode = JSON.parse(getCookie('user')).inviteCode;
+                    var name = inviteCode+"_"+new Date().getTime();
+                    var key = submitOssPhoto(baseData,'profile/head/'+name);
+
+                    var input = {
+                        profileLogo: key
+                    };
+                    this.$indicator.open();
+                    commonAjax(this,'/api/services/app/MyProfile/UpdateMySetting','put',input,this.updateAvatarSuccess,this.updateAvatarError);
+                },
+
+                updateAvatarSuccess: function(data){
+                    if(data.data.success){
+                        this.$toast('修改头像成功');
+                        this.$indicator.close();
+                    }
+                },
+
+                updateAvatarError: function(err){
+                    this.$indicator.close();
+                    this.$toast(err.body.error.message);
+                },
+                
+               
+            }
+        });
+    </script>
+</body>
+</html>

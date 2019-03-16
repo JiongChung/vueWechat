@@ -1,0 +1,220 @@
+.setting-item{
+    padding: 1rem 0 0;
+}
+.setting-item li{
+    font-size: 1.6rem;
+    padding: 0 1rem 0 1.5rem;
+    border-bottom: solid 1px #f4f4f4;
+    cursor: pointer;
+}
+.setting-item li span{
+    height: 5rem;
+    line-height: 5rem;
+}
+.setting-item li .title{
+    float: left;
+}
+.setting-item li .text{
+    float: right;
+}
+.setting-item li .text b,
+.setting-item li .text i{
+    float: right;
+    font-weight: normal;
+    color: #888888
+}
+.setting-item li .text i{
+    margin-left: 1rem;
+}
+.setting-item img{
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+}
+.setting-item .iconfont{
+    font-size: 1.2rem;
+    margin-left: 1rem;
+    color: #bbbbbb;
+}
+.setting-item ul + ul{
+    border-top: solid 1rem #f4f4f4;
+}
+.edit-item .button{
+    padding: 2rem 0 0;
+    display: flex;
+}
+.setting-item .button{
+    padding: 2rem 1.5rem 0;
+    display: flex;
+}
+.edit-item .button button{
+    flex: 1;
+    border: solid 1px #ee0000;
+    padding: 0;
+    text-align: center;
+    background: #ee0000;
+    color: #ffffff;
+    font-size: 1.4rem;
+    height: 4rem;
+    line-height: 4rem;
+
+}
+.edit-item .button button:first-child{
+    margin-right: 2rem;
+    background: transparent;
+    color: #000;
+    border-color: #eee
+}
+
+.editsetting-item{
+    position: fixed;
+    top: 100%;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    background: rgba(0,0,0,0.5);
+}
+
+.editsetting-item.show{
+    top: 0;
+}
+.edit-item{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.5rem;
+    background: #ffffff;
+    transition: bottom 0.3s ease-in-out 0.1s;
+}
+.editnickname-item{
+    height: 16rem;
+    bottom: -16rem;
+}
+
+.editsetting-item.show .editnickname-item.active{
+    bottom: 0;
+    transition: bottom 0.3s ease-in-out 0.1s;
+}
+
+.edit-item .inputchange{
+    font-size: 1.4rem;
+    padding: 1.5rem 1rem;
+    border:solid 1px #eeeeee;
+    width: 100%;
+}
+
+.edit-item .button{
+    padding-top: 2rem
+}
+.editphone-item{
+    bottom: -16rem;
+    height: 16rem;
+}
+.editphone-item.two{
+    height: 22rem;
+}
+
+.editsetting-item.show .editphone-item.active{
+    bottom: 0;
+    transition: bottom 0.3s ease-in-out 0.1s;
+}
+.edit-item .phonecode-item{
+    position: relative;
+}
+.edit-item .getcode{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    height: 4rem;
+    line-height: 4rem;
+    margin: auto;
+    padding: 0 1rem;
+    color: blue;
+    cursor: pointer;
+    font-size: 1.4rem;
+}
+
+.editpassword-item{
+    height: 28rem;
+    bottom: -28rem;
+}
+
+.editsetting-item.show .editpassword-item.active{
+    bottom: 0;
+    transition: bottom 0.3s ease-in-out 0.1s;
+}
+
+.editemail-item{
+    height: 16rem;
+    bottom: -16rem;
+}
+
+.editsetting-item.show .editemail-item.active{
+    bottom: 0;
+    transition: bottom 0.3s ease-in-out 0.1s;
+}
+
+.qrcode-page{
+    background: #444444
+}
+.qrcode-item{
+    margin: 3rem 4rem;
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center
+}
+.qrcode-item .img{
+    width: 8rem;
+    height: 8rem;
+    display: block;
+    margin: auto;
+}
+
+.qrcode-item .img img{
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+}
+
+.qrcode-item .name{
+    display: block;
+    padding: 1.5rem 0;
+    font-size: 2rem;
+}
+.qrcode-item .text{
+    display: block;
+    font-size: 1.4rem;
+}
+.qrcode-item .info{
+    display: block;
+}
+
+#qrcode{
+    margin: 1.5rem;
+}
+
+.logotext{
+    color: #bbbbbb;
+    position: relative;
+    text-align: center;
+    font-size: 1.8rem;
+}
+.logotext span{
+    display: inline-block;
+    position: relative;
+    padding: 0 2rem;
+    background: #444444;
+}
+.logotext:before{
+    position: absolute;
+    top: 0.7rem;
+    left: 0;
+    right: 0;
+    background: #bbbbbb;
+    height: 1px;
+    display: block;
+    content: "";
+}

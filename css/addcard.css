@@ -1,0 +1,133 @@
+.charge-card-item{
+    margin: 0 1.5rem;
+}
+.addcard-page h4,
+.applycard-page h4{
+    font-weight: normal;
+    padding: 1rem 0 0.8rem;
+    font-size: 1.4rem;
+}
+
+.addcard-item{
+    padding: 0 1.5rem;
+    border-top: solid 1rem #f4f4f4;
+    margin-top: 1.5rem;
+}
+.mint-cell-wrapper{
+    padding: 0
+}
+
+.mint-field .mint-cell-title{
+    width: 120px;
+}
+input:disabled{
+    background: transparent
+}
+
+.tips-item{
+    background: #f4f4f4;
+    padding: 0.5rem 1.5rem;
+    line-height: 1.5;
+}
+
+.tips-item p{
+    padding: 0.2rem 0;
+    font-size: 12px;
+    color: #ee0000;
+}
+
+.submit{
+    padding: 1rem 1.5rem;
+}
+
+.applay-item{
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    border-top: solid 0.5rem #f4f4f4;
+    /* border-bottom: solid 0.5rem #f4f4f4; */
+}
+
+.idcardphotos{
+    display: flex;
+    margin-bottom: 1rem;
+}
+.idcardphotos span{
+    flex: 1;
+    height: 6rem;
+    text-align: center;
+    cursor: pointer;
+}
+.idcardphotos span img{
+    max-height: 6rem;
+    width: auto;
+    margin: auto;
+}
+.idcardphotos span:first-child{
+    margin-right: 2rem;
+}
+
+.address-item{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    top: 100%;
+}
+.address-item.show{
+    top: 0
+}
+
+.address-main{
+    position: absolute;
+    bottom: -21rem;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 1rem 1.5rem;
+    transition: bottom 0.3s ease-in-out 0.1s;
+    height: 21rem;
+}
+.address-item.show .address-main{
+    bottom: 0;
+    transition:bottom 0.3s ease-in-out 0.1s;
+}
+
+.address-main select{
+    width: 100%;
+    border:solid 1px #f4f4f4;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    height: 4rem;
+    line-height: 4rem;
+    background: transparent
+}
+
+.address-main .button{
+    display: flex;
+}
+.address-main .button button{
+    flex: 1;
+    border: solid 1px #ee0000;
+    padding: 0;
+    text-align: center;
+    background: #ee0000;
+    color: #ffffff;
+    font-size: 1.4rem;
+    height: 4rem;
+    line-height: 4rem;
+
+}
+.address-main .button button:first-child{
+    margin-right: 2rem;
+    background: transparent;
+    color: #000;
+    border-radius: 0.5rem;
+    border-color: #eee
+}
+
+.mint-field .mint-cell-value.isColor{
+    color: #777
+}

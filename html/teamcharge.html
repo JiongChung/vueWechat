@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>团购充值</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/team.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="team-page">
+    <div id="app" v-cloak>
+        <mt-header title="团购充值">
+            <mt-button icon="back" onclick="goBack()" slot="left">
+            </mt-button>
+            <mt-button slot="right"><span class="share" @click="share"><i class="icon iconfont">&#xe633;</i></span></span></mt-button>
+        </mt-header>
+        <div class="oileachmonth-item">
+            <h4>每月加油金额：<b>￥{{eachMonthAmount}}</b></h4>
+            <div class="range-item">
+                    <mt-range
+                    @change="changeRange"
+                    v-model="rangeValue"
+                    :min="1"
+                    :max="50"
+                    :step="1"
+                    :bar-height="3">
+                    <div class="start" slot="start">100</div>
+                    <div class="end" slot="end">5000</div>
+                </mt-range>
+            </div>
+        </div>
+        <div class="package-item">
+            <h4>选择套餐期限</h4>
+            <div class="package-list">
+                <ul class="clearfix" id="salesPlansList">
+                    <li 
+                        v-for="(item, index) in salesPlansList" 
+                        @click="selectPlan(index, item.returnBatchs, item.discountRate, item.giftCoinsPercent, item.id)" 
+                        :class="{ limited: item.tag!= undefined && item.tag != null && item.tag != '' }">
+                        <span class="title">{{item.name}}</span>
+                        <span class="text">{{item.shortDescription}}</span>
+                        <span class="limitedtext">{{item.tag}}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="charge-order">
+            <h4 class="title">订单详情</h4>
+            <div class="order-main">
+                <span>{{shortDescription}}</span>
+                <span>{{eachMonthAmount}}*{{batches}}期</span>
+                <span>￥{{totalAmount}}</span>
+            </div>
+            <div class="order-item-list">
+                <ul>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/zhe.png" alt=""></span>
+                        立减
+                        <span class="qty"><b>-{{cutAmount}}</b>元</span>
+                    </li>
+                    <li class="clearfix" v-show="presentAmount > 0">
+                        <span class="img"><img src="../images/quan.png" alt=""></span>
+                        满赠
+                        <span class="qty"><b>+{{presentAmount}}</b>元</span>
+                    </li>
+                    <li class="clearfix" v-show="deductAmount > 0">
+                        <span class="img"><img src="../images/quan.png" alt=""></span>
+                        满抵
+                        <span class="qty"><b>-{{deductAmount}}</b>元</span>
+                    </li>
+                    <li class="clearfix" v-show="cashCouponAmount > 0">
+                        <span class="img"><img src="../images/quan.png" alt=""></span>
+                        现金
+                        <span class="qty"><b>-{{cashCouponAmount}}</b>元</span>
+                    </li>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/song.png" alt=""></span>
+                        送<b>{{coinPercent}}%</b>油力值
+                        <span class="qty"><b>+{{coinNum}}</b>个</span>
+                    </li>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/youlizhi_icon.png" alt=""></span>
+                        油力值：1油力值抵扣1人民币用于商城、联盟商家消费
+                    </li>
+                </ul>
+                <div class="agreement-item clearfix">
+                    <span class="radio" :class="{ active: agreementStatus }" @click="checkRadio">我已阅读并同意</span>
+                    <a href="#" class="agreement">《智慧油联充值协议》</a>
+                </div>
+            </div>
+        </div>
+        <div class="charge-coupon-item">
+            <ul>
+                <li class="clearfix" @click="showChargeDetail">
+                    <span class="title">充值明细</span>
+                    <span class="text">首期{{eachMonthAmount}}元 当天购买后2-48小时内到账<i class="icon iconfont">&#xe60c;</i></span>
+                </li>
+                <li class="clearfix" @click="showCouponDetail">
+                    <span class="title">优惠券</span>
+                    <span class="text">{{selectedCouponText}}</span>
+                </li>
+            </ul>
+        </div>
+        <button @click="chargeNow" size="large" :disabled="chargeStatus" type="danger" class="chargenow">立即充值 （￥{{payAmount}}元）</button>
+        <div class="charge-detail-item" :class="{show: isShowchargeDetail}">
+            <div class="detail-main">
+                <div class="title">
+                    充值明细
+                    <span class="close" @click="hideChargeDetail"><i class="icon iconfont">&#xe650;</i></span>
+                </div>
+                <ol>
+                    <li><span>充值金额</span><span>到帐时间</span></li>
+                </ol>
+                <div class="detail-list">
+                    <ul v-html="chargeDetailHtml"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="coupon-detail-item" :class="{show: isShowCouponDetail}">
+            <div class="coupon-main">
+                <div class="coupon-title">
+                    优惠券
+                    <span class="close" @click="hideCouponDetail"><i class="icon iconfont">&#xe650;</i></span>
+                </div>
+                <div class="coupon-list-item">
+                    <ul class="tabs-title">
+                        <li :class="{ active : 0 == nowIndex }" @click="toggleTabs(0)">可用券({{availableCouponsLength}})</li>
+                        <li :class="{ active : 1 == nowIndex }" @click="toggleTabs(1)">不可用券({{unavailableCouponsLength}})</li>
+                    </ul>
+                    <div class="tabs-box">
+                        <div class="list" v-show="nowIndex == 0">
+                            <div class="coupon-list">
+                                <ul>
+                                    <li v-for="(item, index) in availableCouponsList" :id="'couponId_'+item.id" :class="{available: item.isAvailable, unavailable: !item.isAvailable}">
+                                        <div class="type" :class="{gift: item.couponType === 1, mortgage: item.couponType ===2, cash: item.couponType ===3}">
+                                            <span class="amount"><em>￥</em><b>{{item.couponAmount}}</b></span>
+                                            <span class="text">{{item.shortDescription}}</span>
+                                        </div>
+                                        <div class="coupon-info">
+                                            <span v-if="item.couponType === 1" class="tags gift">满赠</span>
+                                            <span v-else-if="item.couponType ===2" class="tags mortgage">满抵</span>
+                                            <span v-else class="tags cash">现金</span>
+                                            <span class="title">{{item.description}}</span>
+                                            <span class="time">{{item.validDate}}</span>
+                                            <span class="radio" :class="{active: item.isSelected}" :id="'radio_'+item.id"></span>
+                                            <input type="checkbox" :checked="item.isSelected" :id="'coupon_radio_'+item.id">
+                                        </div>
+                                        <span class="clickcoupon"  @click="checkCoupon(item.id, item.isAvailable)"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <mt-button @click="confirmSelectCoupon" size="large" type="danger">确定</mt-button>
+                        </div>
+                        <div class="list" v-show="nowIndex == 1">
+                            <div class="coupon-list unavailable-list">
+                                <ul>
+                                    <li v-for="(item, index) in unavailableCouponsList">
+                                        <div class="type" :class="{gift: item.couponType === 1, mortgage: item.couponType ===2, cash: item.couponType ===3}">
+                                            <span class="amount"><em>￥</em><b>{{item.couponAmount}}</b></span>
+                                            <span class="text">{{item.shortDescription}}</span>
+                                        </div>
+                                        <div class="coupon-info">
+                                            <span v-if="item.couponType === 1" class="tags gift" :class="{ available: item.isAvailable, unavailable: !item.isAvailable }">满赠</span>
+                                            <span v-else-if="item.couponType ===2" class="tags mortgage" :class="{ available: item.isAvailable, unavailable: !item.isAvailable }">满抵</span>
+                                            <span v-else class="tags cash" :class="{ available: item.isAvailable, unavailable: !item.isAvailable }">现金</span>
+                                            <span class="title">{{item.description}}</span>
+                                            <span class="time">{{item.validDate}}</span>
+                                            <span class="radio"></span>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div v-if="unavailableCouponsList.length == 0" class="nodata">
+                                    暂无可用优惠券
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="share-item-box" v-show="isShowShare" @click="closeShareItem">
+            <span class="img"><img src="../images/fenxiang_content.png" alt=""></span>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var wx;
+        var app = new Vue({
+            el: '#app',
+            data:{
+                rangeValue: 10,
+                salesPlansList: [],
+                agreementStatus: false,
+                shortDescription: '',
+                batches: 0,
+                eachDiscountRate: 0,
+                coinPercent: 0,
+                selectedCouponIds: '',
+                payAmount: 0,
+                selectedCouponText: '',
+                cashCouponAmount: 0,
+                deductAmount: 0,
+                presentAmount: 0,
+                chargeStatus: true,
+                chargeDetailHtml: '',
+                isShowchargeDetail: false,
+                isShowCouponDetail: false,
+                nowIndex: 0,
+                planId: 0,
+                availableCouponsList: [],
+                availableCouponsLength: 0,
+                unavailableCouponsList: [],
+                unavailableCouponsLength: 0,
+                selectCouponList: [],
+                closeStatus: false,
+                isShowShare: false
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/UserAsset/RechargeInit');
+            },
+            computed: {
+                totalAmount: function () {
+                    return this.batches * this.eachMonthAmount;
+                },
+
+                eachMonthAmount: function(){
+                    return this.rangeValue * 100;
+                },
+
+                cutAmount: function(){
+                    return this.totalAmount * (100-this.eachDiscountRate) / 100;
+                },
+
+                coinNum: function(){
+                    return this.payAmount * this.coinPercent / 100;
+                }
+            },
+            methods: {
+                share: function(){
+                    this.isShowShare = true;
+                },
+
+                closeShareItem: function(){
+                    this.isShowShare = false;
+                },
+
+                changeRange: function(){
+                    this.chargeMoneyInit();
+                },
+
+                selectPlan: function(index, returnBatchs, discountRate, giftCoinsPercent, id){
+                    var Li = document.getElementById('salesPlansList').getElementsByTagName('li');
+                    var length = Li.length;
+                    for(var i=0; i<length; i++){
+                        Li[i].classList.remove('active');
+                    }
+                    document.getElementById('salesPlansList').getElementsByTagName('li')[index].classList.add('active');
+                    
+                    this.shortDescription = this.salesPlansList[index].shortDescription;
+                    this.batches = this.salesPlansList[index].returnBatchs;
+                    this.eachDiscountRate = this.salesPlansList[index].discountRate;
+                    this.coinPercent = giftCoinsPercent;
+                    this.planId = id;
+                    this.checkDetailHtml();
+                    this.chargeMoneyInit();
+                    
+                },
+
+                checkDetailHtml: function(){
+                    var myDate = new Date();
+                    this.chargeDetailHtml = '';
+                    for(var i=0; i<this.batches; i++){
+                        if(i == 0){
+                            this.chargeDetailHtml +='<li><span>'+this.eachMonthAmount+'(1/'+this.batches+'期)</span><span>2-48小时到账</span></li>';
+                        }else{
+                            myDate = new Date(myDate.getTime()+2592000000);
+                            this.chargeDetailHtml +='<li><span>'+this.eachMonthAmount+'('+(i+1)+'/'+this.batches+'期)</span><span>'+myDate.getFullYear() +'-'+((myDate.getMonth()+1)<10?'0'+(myDate.getMonth()+1):(myDate.getMonth()+1))+'-'+(myDate.getDate()<10?'0'+myDate.getDate():myDate.getDate())+'</span></li>';
+                        }
+                    }
+                },
+
+                showChargeDetail: function(){
+                    this.checkDetailHtml();
+                    this.isShowchargeDetail = true;
+                },
+
+                hideChargeDetail: function(){
+                    this.isShowchargeDetail = false;
+                },
+
+                showCouponDetail: function(){
+                    this.isShowCouponDetail = true;
+                    this.closeStatus = false;
+                },
+
+                hideCouponDetail: function(){
+                    this.isShowCouponDetail = false;
+                },
+
+                toggleTabs: function(index){
+                    this.nowIndex = index;
+                },
+
+                checkCoupon: function(index, type){
+                    if(!type)return;
+                    var radio = document.getElementById('coupon_radio_'+index);
+                    var radioBtn = document.getElementById('radio_'+index);
+                    
+                    if(radio.checked){
+                        radioBtn.setAttribute('class','radio');
+                        radio.checked = false;
+                    }else{
+                        radioBtn.setAttribute('class','radio active');
+                        radio.checked = true;
+                    }
+
+                    for(var i=0; i<this.selectCouponList.length; i++){
+                        if(index == this.selectCouponList[i].id){
+                            this.selectCouponList[i].checked = radio.checked;
+                        }
+                    }
+                    
+                    var ids = [];
+                    for(var i=0; i<this.selectCouponList.length; i++){
+                        if(this.selectCouponList[i].checked){
+                            ids.push(this.selectCouponList[i].id);
+                        }
+                    }
+                    this.SelectingCoupon(ids.join());
+                },
+
+                confirmSelectCoupon: function(){
+                    var ids = [];
+                    for(var i=0; i<this.selectCouponList.length; i++){
+                        if(this.selectCouponList[i].checked){
+                            ids.push(this.selectCouponList[i].id);
+                        }
+                    }
+                    
+                    this.selectedCouponIds = '';
+                    if(ids.length == 0){
+                        this.selectedCouponIds = '-1';
+                    }else{
+                        this.selectedCouponIds = ids.join();
+                    }
+                    this.closeStatus = true;
+                    this.chargeMoneyInit();
+                },
+
+                chargeMoneyInit: function(){
+                    var input = {
+                        chargeAmount: this.totalAmount,
+                        salesPlanId: this.planId,
+                        chargeType: 1,
+                        selectedCouponIds: this.selectedCouponIds
+                    };
+                    this.$indicator.open();
+                    var apiUrl = '/api/services/app/UserAsset/CouponInit';
+                    commonAjax(this,apiUrl,'post',input,this.couponInitSuccess,this.couponInitError);
+                },
+
+                couponInitSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.payAmount = data.body.result.payAmount;
+                        this.presentAmount = data.body.result.presentAmount;
+                        this.deductAmount = data.body.result.deductAmount;
+                        this.cashCouponAmount = data.body.result.cashCouponAmount;
+                        this.selectedCouponText = data.body.result.selectedCouponText;
+                        this.selectedCouponIds = data.body.result.selectedCouponIds;
+
+                        this.SelectingCoupon(this.selectedCouponIds);
+                    }
+                },
+
+                couponInitError: function(err){
+                    this.$indicator.close();
+                },
+
+                SelectingCoupon: function(ids){
+                    var input = {
+                        chargeAmount: this.totalAmount,
+                        chargeType: 1,
+                        selectedCouponIds: ids,
+                        salesPlanId: this.planId
+                    };
+                    this.$indicator.open();
+                    var apiUrl = '/api/services/app/UserAsset/SelectingCoupon';
+                    commonAjax(this,apiUrl,'post',input,this.selectingCouponSuccess,this.selectingCouponError);
+                },
+                
+                selectingCouponSuccess: function(data){
+                    this.selectCouponList = [];
+                    this.$indicator.close();
+                    this.availableCouponsList = [];
+                    this.availableCouponsList = data.body.result.availableCoupons;
+                    for(var i=0; i<this.availableCouponsList.length; i++){
+                        this.selectCouponList.push({
+                            id: this.availableCouponsList[i].id,
+                            checked: this.availableCouponsList[i].isSelected
+                        })
+                    }
+                    this.availableCouponsLength = this.availableCouponsList.length;
+                    this.unavailableCouponsList = data.body.result.unavailableCoupons;
+                    this.unavailableCouponsLength = this.unavailableCouponsList.length;
+
+                    if(this.closeStatus){
+                        this.hideCouponDetail();
+                    }
+                },
+
+                selectingCouponError: function(err){
+                    this.$indicator.close();
+                },
+               
+                checkRadio: function(){
+                    this.agreementStatus = true;
+                    this.watchform();
+                },
+
+                loadData: function(apiUrl){
+                    var value = {rechargeType: 1};
+                    commonAjax(this,apiUrl,'post',value,this.loadDataSuccess,this.loadDataError);
+                },
+
+                loadDataSuccess: function(response){
+                    var that = this;
+                   if(response.body.success){
+                        this.salesPlansList = response.body.result.salesPlans;
+                        setTimeout(function(){
+                            that.selectPlan(0, that.salesPlansList[0].returnBatchs, that.salesPlansList[0].discountRate, that.salesPlansList[0].giftCoinsPercent, that.salesPlansList[0].id)
+                        },50);
+                    }
+                },
+
+                loadDataError: function(err){
+                    console.log(err)
+                },
+
+                
+
+                _onMenuShareTimeline: function(){
+                    wx.onMenuShareTimeline({  
+                        title: '老铁，我在【智慧油联】充值加油6.7折哦，超级划算，分享给你',
+                        link: 'http://wx.zhihuiyoulian.com/invite.html?inviteCode='+JSON.parse(getCookie('user')).inviteCode,
+                        imgUrl: 'http://wx.zhihuiyoulian.com/wechat/image/icon/logo.png', // 分享图标
+                        success: function () {   
+                            // _toast('分享成功');
+                        },  
+                        cancel: function () {   
+                            
+                        }  
+                    });
+                },
+
+                _onMenuShareAppMessage: function(){
+                    wx.onMenuShareAppMessage({  
+                        title: '老铁，我在【智慧油联】充值加油6.7折哦，超级划算，分享给你',
+                        desc: '支持全国欧粤、中石油、中石化各大站点加油，现在下载、立享超级油惠！',
+                        link: 'http://wx.zhihuiyoulian.com/invite.html?inviteCode='+JSON.parse(getCookie('user')).inviteCode,
+                        imgUrl: 'http://wx.zhihuiyoulian.com/wechat/image/icon/logo.png', // 分享图标
+                        type: '', // 分享类型,music、video或link，不填默认为link  
+                        dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空  
+                        success: function () {   
+                            // _toast('分享成功');
+                        },  
+                        cancel: function () {   
+                            // 用户取消分享后执行的回调函数  
+                        }  
+                    }); 
+                },
+                
+                watchform: function(){
+                    if(this.agreementStatus){
+                        this.chargeStatus = false;
+                    }else{
+                        this.chargeStatus = true;
+                    }
+                },
+
+                chargeNow: function(){
+                    var payType = 1;
+                    var input = {
+                    };
+                    this.$indicator.open();
+                    this.chargeStatus = true;
+                    commonAjax(this,'/api/services/app/UserAsset/GroupBuyingRecharge','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    console.log(data.data.result)
+                    if(data.data.success){
+                        var result = data.data.result;
+                        app.$indicator.close();
+                        this.chargeStatus = false;
+                       
+
+                    }else{
+                        this.$indicator.close();
+                        this.chargeStatus = false;
+                        this.$toast('充值失败');
+                    }
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.chargeStatus = false;
+                }
+            }
+        })
+    </script>
+</body>
+</html>

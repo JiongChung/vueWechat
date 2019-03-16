@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/oilcard.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="我的油卡">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="oilcard-item" id="card-item">
+            <mt-swipe :style="{ height: cardHeight + 'px' }" :show-indicators="false" :auto="0" @change="handleChange">
+                <mt-swipe-item v-for="(item, index) in myCardList">
+                    <div v-if="item.oilCardTypeId === 1">
+                        <img src="../images/sinopec_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                        <span class="remove" @click="removeCard(item.oilCardNo)"><i class="icon iconfont">&#xe650;</i></span></span>
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 2">
+                        <img src="../images/cnpc_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                        <span class="remove" @click="removeCard(item.oilCardNo)"><i class="icon iconfont">&#xe650;</i></span></span>
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 3">
+                        <img src="../images/cned_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                        <span class="remove" @click="removeCard(item.oilCardNo)"><i class="icon iconfont">&#xe650;</i></span></span>
+                    </div>
+                    <div v-else>
+                        <a href="addcard.html"><img src="../images/tianjiayouka_card2.png"></a>
+                    </div>
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+        <div class="oilcard-main">
+            <h4>拥有油卡的好处</h4>
+            <div class="content">
+                <dl>
+                    <dt><i class="icon iconfont">&#xe639;</i></span>充值优惠</dt>
+                    <dd>通过智慧油联添加加油卡，可享受充值优惠</dd>
+                </dl>
+                <dl>
+                    <dt><i class="icon iconfont">&#xe63e;</i></span>全国联网</dt>
+                    <dd>一卡在手，可在全国联网加油站加油</dd>
+                </dl>
+                <dl>
+                    <dt><i class="icon iconfont">&#xe63f;</i></span>使用便捷</dt>
+                    <dd>持卡加油，自动结算，无需找零</dd>
+                </dl>
+            </div>
+            <div class="tips-item">
+               <p>广东省内客户，使用“中石油”油卡，请选择“申请油卡”;中石化请绑定自己的“个人主卡”；</p>
+               <p>广东省外客户,请选择“添加油卡”,绑定自己的“个人主卡”。</p>
+            </div>
+        </div>
+        <div class="apply-oilcard">
+            <a href="addcard.html">添加油卡</a>
+            <a href="applycard.html">申请油卡</a>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var app = new Vue({
+            el: '#app',
+            data:{
+                cardHeight: 0,
+                myCardList: [],
+                cardStatus: false,
+                fullCardStatus: false
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/OilCard/GetCards');
+            },
+            methods: {
+                handleChange: function(index){
+                    console.log(index)
+                },
+
+                removeCard: function(id){
+                    this.$messagebox.confirm('是否删除此油卡？').then(action => {
+                        this.$indicator.open();
+                        var apiUrl = '/api/services/app/OilCard/DeleteCard?OilCardNo='+id;
+                        commonAjax(this,apiUrl,'delete','',this.removeCardSuccess,this.removeCardError);
+                    });
+                },
+
+                removeCardSuccess: function(data){
+                    this.$toast('删除油卡成功');
+                    this.$indicator.close();
+                    this.loadData('/api/services/app/OilCard/GetCards');
+                },
+
+                removeCardError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+
+                loadData: function(apiUrl){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                       this.myCardList = data.body.result.items;
+                       if(this.myCardList.length == 0){
+                            this.cardHeight = document.getElementById("card-item").offsetWidth * 400 / 960;
+                            this.cardStatus = false;
+                        }else{
+                            this.cardStatus = true;
+                            this.cardHeight = document.getElementById("card-item").offsetWidth * 300 / 550;
+                        }
+                        if(this.myCardList.length < 2){
+                            this.myCardList.push({'oilCardTypeId': 999});
+                            this.fullCardStatus = false;
+                        }else{
+                            this.fullCardStatus = true;
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+            }
+        })
+    </script>
+</body>
+</html>

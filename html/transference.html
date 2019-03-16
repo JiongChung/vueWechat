@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/transference.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="transference-page fix-header-height">
+    <div id="app" v-cloak>
+        <mt-header fixed title="智慧油联"></mt-header>
+        <div class="charge-card-item" id="card-item">
+            <h4 class="title">请选择油卡</h4>
+            <mt-swipe :style="{ height: cardHeight + 'px' }" :show-indicators="false" :auto="0" @change="handleChange">
+                <mt-swipe-item v-for="(item, index) in myCardList">
+                    <div v-if="item.oilCardTypeId === 1">
+                        <img src="../images/zhongshiyou_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 2">
+                        <img src="../images/zhongshihua_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 3">
+                        <img src="../images/ouyue_card.png">
+                        <span class="text">{{item.oilCardNo}}</span>
+                    </div>
+                    <div v-else>
+                        <a href="addcard.html"><img src="../images/tianjiayouka_card.png"></a>
+                    </div>
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+        <div class="money-item">
+            <ul>
+                <li>
+                    <span class="title">可用油豆</span>
+                    <span class="amount">{{point}}</span>
+                </li>
+                <li>
+                    <span class="title">可用佣金</span>
+                    <span class="amount">￥{{commission}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="transference-item">
+            <mt-field label="圈存金额" placeholder="请输入圈存金额" v-on:input="watchAmount" type="number" v-model="amount"></mt-field>
+            <mt-field label="油豆抵现金" placeholder="请输入油豆数量" v-on:input="watchOilBean" type="number" v-model="oilBean"></mt-field>
+            <mt-field label="佣金抵现金" placeholder="请输入佣金金额" v-on:input="watchCommission" type="number" v-model="totalCommission"></mt-field>
+            <mt-field label="验证码" placeholder="请输入验证码" v-on:input="watchPhoneCode" type="number" v-model="phoneCode"><span class="getcode" @click="getCode($event)">获取验证码</span></mt-field>
+            <span class="tips">* 圈存金额请输入100的整数倍；</span>
+            <mt-button type="danger" @click="transferenceNow" :disabled="isCanSubmit" size="large">立即线上圈存</mt-button>
+        </div>
+        <footer-component :is-active="isActive"></footer-component>
+    </div>
+    <script src="../components/footer.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+
+        var footerComponent = Vue.extend({
+            template: footerHtml,
+            props: ['isActive'],
+            methods: {
+                openFooter: function(id){
+                    if(id == 0){
+                        window.location.href = '../index.html';
+                    }else if(id == 1){
+                        window.location.href = 'find.html';
+                    }else if(id == 4){
+                        window.location.href = 'user.html';
+                    }
+                }
+            }
+        });
+        Vue.component('footer-component', footerComponent);
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                isActive: [false,false,false,true,false],
+                myCardList: [],
+                cardHeight: 0,
+                cardNumber: '',
+                isChooseCard: false,
+                fullCardStatus: false,
+                cardIndex: 0,
+                commission: 0,
+                point: 0,
+                amount: '',
+                oilBean: '',
+                totalCommission: '',
+                phoneCode: '',
+                getphonecodestatus: true,
+                isCanSubmit: true,
+                isAmountOk: false,
+                isPhoneCode: false
+            },
+            mounted: function(){
+                this.GetCards('/api/services/app/OilCard/GetCards');
+                this.GetAvailableAsset('/api/services/app/MyProfile/GetAvailableAsset');
+            },
+            methods: {
+                
+                GetCards: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.getCardsSuccess,this.getCardsError);
+                },
+
+                getCardsSuccess: function(data){
+                    this.myCardList = data.body.result.items;
+                    if(this.myCardList.length == 0){
+                        this.cardHeight = document.getElementById("card-item").offsetWidth * 400 / 960;
+                        this.isChooseCard = false;
+                        this.cardNumber = '';
+                    }else{
+                        this.isChooseCard = true;
+                        this.cardHeight = document.getElementById("card-item").offsetWidth * 438 / 968;
+                        this.cardNumber = this.myCardList[0].oilCardNo;
+                    }
+                    if(this.myCardList.length < 2){
+                        this.myCardList.push({'oilCardTypeId': 999});
+                        this.fullCardStatus = false;
+                    }else{
+                        this.fullCardStatus = true;
+                    }
+                },
+
+                getCardsError: function(err){
+                    console.log(err)
+                },
+
+                handleChange: function(index){
+                    this.cardIndex = index;
+                    this.isChooseCard = (!this.fullCardStatus) ? ((index == 1) ? false : true) : true;
+                    this.watchform();
+                    this.cardNumber = this.myCardList[index].oilCardNo;
+                    console.log(this.cardNumber)
+                },
+
+                GetAvailableAsset: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.getAvailableAssetSuccess,this.getAvailableAssetError);
+                },
+
+                getAvailableAssetSuccess: function(data){
+                    this.point = data.body.result.point;
+                    this.commission = data.body.result.commission;
+                },
+
+                getAvailableAssetError: function(err){
+                    console.log(err)
+                },
+
+                watchAmount: function(e){
+                    this.isAmountOk = (this.amount < 100) ? false : ((this.amount % 100 == 0) ? true : false);
+                    this.watchform();
+                },
+
+                watchOilBean: function(e){
+                    this.oilBean = (this.oilBean > this.point) ? this.point : this.oilBean;
+                },
+
+                watchCommission: function(e){
+                    this.totalCommission = (this.totalCommission > this.commission) ? this.commission : this.totalCommission;
+                },
+
+                watchPhoneCode: function(e){
+                    this.isPhoneCode = (e.length == 6) ? true : false;
+                    this.watchform();
+                },
+
+                getCode: function(e){
+                    if(this.getphonecodestatus){
+                        this.sendPhoneCode(e.target);
+                    }else{
+                        let name = e.target.className.split(' ');
+                        if(name.indexOf('loading') == -1){
+                            this.getphonecodestatus = true;
+                            this.sendPhoneCode(e.target);
+                        }
+                    }
+                    
+                },
+
+                sendPhoneCode: function(obj){
+                    var status = getPhoneCodeNow(obj, 60 ,true,'获取验证码','重新发送');
+                    this.getphonecodestatus = status;
+                    this.SendSmsCode('/api/services/app/SMS/SendSmsCode');
+                },
+
+                SendSmsCode: function(apiUrl){
+                    var input = {
+                        phoneNumber: '',
+                        type: 3
+                    }
+                    
+                    commonAjax(this,apiUrl,'post',input,this.getSmsCodeSuccess,this.getSmsCodeError);
+                },
+
+                getSmsCodeSuccess: function(data){
+
+                },
+
+                getSmsCodeError: function(err){
+                    this.$toast(err.body.error.message);
+                },
+
+                watchform: function(){
+                    if(this.isAmountOk && this.isPhoneCode && this.isChooseCard){
+                        this.isCanSubmit = false;
+                    }else{
+                        this.isCanSubmit = true;
+                    }
+                },
+
+                transferenceNow: function(){
+                   
+                    var status = false;
+                    if(!this.oilBean && !this.totalCommission){
+                        this.$toast('“油豆抵现金”+“佣金抵现金”不能为空');
+                        status = true;
+                    }
+                    if(this.oilBean && !this.totalCommission){
+                        if(Number(this.oilBean) != Number(this.amount)){
+                            this.$toast('“油豆抵现金”不等于圈存金额，请重新输入');
+                            status = true;
+                        }
+                    }
+                    if(!this.oilBean && this.totalCommission){
+                        if(Number(this.totalCommission) != Number(this.amount)){
+                            this.$toast('“佣金抵现金”不等于圈存金额，请重新输入');
+                            status = true;
+                        }
+                    }
+                    if(this.oilBean && this.totalCommission){
+                        var total = Number(this.oilBean) + Number(this.totalCommission);
+                        if(total != Number(this.amount)){
+                            this.$toast('“油豆抵现金”+“佣金抵现金”的总数不等于圈存金额，请重新输入');
+                            status = true;
+                        }
+                    }
+                    
+                    if(status){
+                        return false;
+                    }
+                    
+                    var input = {
+                        userId: JSON.parse(getCookie('user')).userId,
+                        oilCardNo: this.cardNumber,
+                        loadAmount: this.amount,
+                        usedCommissionAmount: this.totalCommission,
+                        usedPoints: this.oilBean,
+                        secretCode: this.phoneCode
+                    };
+
+			        this.$indicator.open();
+                    this.isCanSubmit = true;
+			        commonAjax(this,'/api/services/app/OilCard/LoadCard','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    if(data.body.success){
+                        this.$toast('圈存成功');
+                        setTimeout(function(){
+                            location.reload();
+                        },1500);
+                    }else{
+                        this.$toast('圈存失败');
+                    }
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    this.$toast(err.body.error.message);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

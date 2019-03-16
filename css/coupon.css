@@ -1,0 +1,36 @@
+.coupon-item .tabs-title{
+    display: flex;
+    border-bottom: solid 1px #f4f4f4;
+    position: fixed;
+    top: 40px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background: #ffffff;
+}
+
+.coupon-item .tabs-title li{
+    flex: 1;
+    text-align: center;
+    font-size: 1.4rem;
+    padding: 0;
+    position: relative;
+    height: 40px;
+    line-height: 40px;
+}
+.coupon-item .tabs-title li.active{
+    color: #ee0000;
+}
+.coupon-item .tabs-title li.active:before{
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    background: #ee0000;
+    height: 1px;
+    display: block;
+    content: ""
+}
+.coupon-list-item{
+    padding: 50px 1.5rem 0;
+}

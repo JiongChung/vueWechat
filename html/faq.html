@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/more.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="FAQ常见问题">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="faq-item">
+            <ul>
+                <li><a href="javascript:;" @click="openDetail(1, '关于充值')">关于充值</a></li>
+                <li><a href="javascript:;" @click="openDetail(2, '成为合伙人')">成为合伙人</a></li>
+                <li><a href="javascript:;" @click="openDetail(3, '关于用户优惠')">关于用户优惠</a></li>
+            </ul>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                
+            },
+            mounted: function(){
+                
+            },
+            methods: {
+                openDetail: function(id ,text){
+                    window.location.href = 'faqdetail.html?title='+escape(text)+'&id='+id;
+                }
+            }
+        })
+    </script>
+</body>
+</html>

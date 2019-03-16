@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>佣金提现</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/commission.css?342323">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="佣金提现">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="drawing-item">
+            <div class="first">总金额<b class="amount">{{availableAmount}}</b>元</div>
+            <div>满{{amoutForDrawing}}元可提现，<span>提现手续费{{feeRateForDrawing}}%</span></div>
+        </div>
+        <div class="drawing-main">
+            <ul>
+                <li>
+                    <span>提现方式</span>
+                    <button class="tabs" v-for="(item, index) in typesList" @click="toggleTabs(index)" :class="{ active : index == nowIndex}">{{item.value}}</button>
+                </li>
+                <li v-show="isBank">
+                    <span>银行卡</span>
+                    <select v-model="bankCardSelected" @change="changeBankCard">
+                        <option value="" selected="selected">全部</option>
+                        <option v-for="item of myBankCards"  :value="item.id" >{{item.accountNoForDisplay}}</option>
+                    </select>
+                </li>
+                <li>
+                    <span>提现金额</span>
+                    <input type="number" v-model="amount" v-on:input="watchAmount" class="inputchange" placeholder="请输入提现金额">
+                </li>
+                <li>
+                    <span>验证码</span>
+                    <input type="number" v-model="phonecode" v-on:input="watchPhoneCode" class="inputchange" placeholder="请输入手机验证码">
+                    <b class="getcode" v-show="!isCanwithdrawal" @click="getcode($event)">获取验证码</b>
+                </li>
+                <li>
+                    <mt-button type="danger" @click="withdrawalNow" v-show="!isCanwithdrawal" :disabled="isCanSubmit" size="large">立即提现</mt-button>
+                    <!-- <mt-button type="default" style="margin-bottom:0.5rem;" v-show="!isCanwithdrawal" size="large">您的佣金不够，不能提现</mt-button> -->
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var app = new Vue({
+            el: '#app',
+            data:{
+                availableAmount: 0,
+                feeRateForDrawing: 0,
+                amoutForDrawing: 0,
+                typesList: [],
+                myBankCards: [],
+                amount: '',
+                phonecode: '',
+                bankCardSelected: '',
+                nowIndex: 0,
+                isBank: false,
+                getphonecodestatus: true,
+                isCanSubmit: true,
+                isBankOk: false,
+                isAmountOk: false,
+                isPhoneCodeOk: false,
+                isCanwithdrawal: false,
+                returnType: 0
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/UserAsset/DrawingApplyInit');
+            },
+            methods: {
+                getcode: function(e){
+                    if(this.getphonecodestatus){
+                        this.sendPhoneCode(e.target);
+                    }else{
+                        let name = e.target.className.split(' ');
+                        if(name.indexOf('loading') == -1){
+                            this.getphonecodestatus = true;
+                            this.sendPhoneCode(e.target);
+                        }
+                    }
+                },
+
+                sendPhoneCode: function(obj){
+                    var status = getPhoneCodeNow(obj, 60 ,true,'获取验证码','重新发送');
+                    this.getphonecodestatus = status;
+                    this.SendSmsCode('/api/services/app/SMS/SendSmsCode');
+                },
+
+                SendSmsCode: function(apiUrl){
+                    var userId = JSON.parse(getCookie('user')).userId;
+                    //type 1.注册 2.登录 3.圈存 4.提现
+                    var input = {
+                        phoneNumber:'',
+                        userId: userId,
+                        type: 4
+                    }
+                    commonAjax(this,apiUrl,'post',input,this.getSmsCodeSuccess,this.getSmsCodeError);
+                },
+
+                getSmsCodeSuccess: function(data){
+
+                },
+
+                getSmsCodeError: function(err){
+
+                },
+
+                toggleTabs: function(index){
+                    this.nowIndex = index;
+                    this.isBank = false;
+                    if(this.typesList[this.nowIndex].id == 4){
+                        this.isBank = true;
+                    }else{
+                        this.isBankOk = true;
+                    }
+                    this.returnType = this.typesList[this.nowIndex].id;
+                    this.watchform();
+                },
+
+                changeBankCard: function(){
+                    this.isBankOk = this.bankCardSelected ? true : false;
+                    this.watchform();
+                },
+
+                watchAmount: function(){
+                    this.isAmountOk = this.amount ? ((this.amount < 30) ? false : true) : false;
+                    this.watchform();
+                },
+
+                watchPhoneCode: function(e){
+                    this.isPhoneCodeOk = this.phonecode ? ((this.phonecode.length != 6) ? false : true) : false;
+                    this.watchform();
+                },
+                
+                loadData: function(apiUrl){
+                    this.$indicator.open();
+                    var input = {assetType: 1}
+                    commonAjax(this,apiUrl,'post',input,this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.availableAmount = data.body.result.availableAmount;
+                        if(this.availableAmount >= 30){
+                            this.isCanwithdrawal = true;
+                        }
+                        this.feeRateForDrawing = data.body.result.commissionHandlingFeeRateForDrawing;
+                        this.amoutForDrawing = data.body.result.commissionMinAmoutForDrawing;
+                        this.typesList = data.body.result.returnTypes;
+                        this.myBankCards = data.body.result.myBankCards;
+                        this.toggleTabs(0);
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+
+                watchform: function(){
+                    if(this.isBankOk && this.isAmountOk && this.isPhoneCodeOk){
+                        this.isCanSubmit = false;
+                    }else{
+                        this.isCanSubmit = true;
+                    }
+                },
+
+                withdrawalNow: function(){
+                    if(this.returnType == 4){
+                        var input = {
+                            amount: Number(this.amount),
+                            secretCode: this.phonecode,
+                            assetType: 1,
+                            returnType: this.returnType,
+                            bankCardId: this.bankCardSelected
+                        };
+                    }else{
+                        var input = {
+                            amount: Number(this.amount),
+                            secretCode: this.phonecode,
+                            assetType: 1,
+                            returnType: this.returnType
+                        };
+                    }
+                    var apiUrl = '/api/services/app/UserAsset/DrawingApply';
+                    commonAjax(this,apiUrl,'post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    if(data.data.success){
+                        this.$toast('提现申请成功，请耐心等待');
+                        setTimeout(function(){
+                            goBack();
+                        },2000);
+                    }else{
+                        this.$toast('提现申请失败，请稍后重试')
+                    }
+                },
+
+                submitError: function(err){
+                    this.$toast(err.body.error.message);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

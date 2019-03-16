@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css?434">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/addcard.css?434334443333">
+    <script src="../js/vue.js"></script>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js?334"></script>
+</head>
+<body class="applycard-page">
+    <div id="app" v-cloak>
+        <mt-header title="申请油卡">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="charge-card-item" id="card-item">
+            <h4 class="title">请选择油卡</h4>
+            <mt-swipe :style="{ height: cardHeight + 'px' }" :auto="0" @change="handleChange">
+                <mt-swipe-item>
+                    <img src="../images/sinopec_card.png">
+                </mt-swipe-item>
+                <mt-swipe-item>
+                        <img src="../images/cnpc_card.png">
+                    </mt-swipe-item>
+                <mt-swipe-item>
+                    <img src="../images/cned_card.png">
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+        <div class="applay-item">
+            <mt-field label="姓名" :disabled="realNameStatus" placeholder="请输入持卡人姓名" v-on:input="watchRealName" v-model="realName"></mt-field>
+            <mt-field label="身份证号" :disabled="identityNoStatus" placeholder="请输入您的身份证号码" v-on:input="watchIdentityNo" v-model="identityNo"></mt-field>
+            <div class="idcardphotos" v-show="!isIdentifiedUser">
+                <span @click="uploadImage(1)"><img :src="identityPicture0" alt=""></span>
+                <span @click="uploadImage(2)"><img :src="identityPicture1" alt=""></span>
+            </div>
+            <mt-field label="手机号" placeholder="请输入手机号" v-on:input="watchPhoneNumber" v-model="phoneNumber"></mt-field>
+            <div class="mint-cell mint-field" @click="openAddress">
+                <div class="mint-cell-wrapper">
+                    <div class="mint-cell-title">
+                        <span class="mint-cell-text">区域</span>
+                    </div>
+                    <div class="mint-cell-value" :class="{isColor: isColor}">{{addressText}}</div>
+                </div>
+            </div>
+            <mt-field label="详细地址" placeholder="请输入街道楼牌号" v-on:input="watchAddress" v-model="address"></mt-field>
+            <div class="tips-item">
+                <p>中石化和中石油规定办理油卡需提供身份证件照片；</p>
+                <p>每次申请油卡收取50元工本费；</p>
+                <p>请仔细核对并选择正确的油卡类型，以免充值错误造成不必要的损失。</p>
+            </div>
+            <div class="submit">
+                <mt-button size="large" type="danger" @click="submitNow" :disabled="isCanSubmit">提交申请</mt-button>
+            </div>
+        </div>
+        <select-address-component 
+            ref="selectaddress"
+            :is-show-address-item="isShowAddressItem"
+            :address-list="addressList"
+            :address-ids="addressIds"
+            v-on:listenaddress="showMsgFromAddress">
+        </select-address-component>
+    </div>
+    <script src="../components/selectAddress.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script src="../js/inobounce.min.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var wx;
+        var app = new Vue({
+            el: '#app',
+            data:{
+                cardHeight: 0,
+                identityNo: '',
+                realName: '',
+                realNameStatus: false,
+                identityNoStatus: false,
+                isRealNameOk: false,
+                isIdentityNoOk: false,
+                isInitidentityOk: false,
+                identityPicture0: '../images/shenfenzhengzhengmia.jpg',
+                identityPicture1: '../images/shenfenzhengbeimian.jpg',
+                phoneNumber: '',
+                isPhoneNumberOk: false,
+                city: '',
+                address: '',
+                addressList: {
+                    list: [],
+                    province: [],
+                    city: [],
+                    country: []
+                },
+                addressIds: {
+                    provinceId: '',
+                    cityId: '',
+                    countryId: '',
+                    provinceText: '请选择省份',
+                    cityText: '请选择城市',
+                    countryText: '请选择县区',
+                    isProvince: true,
+                    isCity: false,
+                    isDstrict: false,
+                    isProvinceOk: false,
+                    isCityOk: false,
+                    isDstrictOk: false
+                },
+                isShowAddressItem: false,
+                isOnSubmitOk: true,
+                isColor: true,
+                addressText: '请选择省，市，区',
+                isCanSubmit: true,
+                isFrontImageOk: false,
+                isBackImageOk: false,
+                isAddressIdsOk: false,
+                isDetailAddressOk: false,
+                isIdentifiedUser: false,
+                isHaveName: false,
+                cardIndex: 1
+            },
+            mounted: function(){
+                this.cardHeight = document.getElementById("card-item").offsetWidth * 300 / 550;
+                this.loadData('/api/services/app/OilCard/GetIdentifiedInfo');
+            },
+            methods: {
+                
+                showMsgFromAddress(data){
+                    if(typeof(data) == 'object'){
+                        this.addressText = data.districtName;
+                        this.isColor = false;
+                        this.isAddressIdsOk = true;
+                    }
+                    if(isIos()){
+                        iNoBounce.enable();
+                    };
+                    this.isShowAddressItem = false;
+                    this.watchform();
+                    console.log(this.addressText)
+                },
+                getDistrictsForSGApp: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.getDistrictsSuccess,this.getDistrictsError);
+                },
+                getDistrictsSuccess: function(data){
+                    this.addressList.list = data.body.result.items;
+                    this.addressList.province = data.body.result.items;
+                    if(this.addressIds.provinceId && this.addressIds.cityId && this.addressIds.countryId){
+                        for(var i=0; i<this.addressList.province.length; i++){
+                            if(this.addressIds.provinceId == this.addressList.province[i].id){
+                                for(var j=0; j<this.addressList.province[i].sub.length; j++){
+                                    if(this.addressIds.cityId == this.addressList.province[i].sub[j].id){
+                                        this.addressList.list = this.addressList.province[i].sub[j].sub;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if(isIos()){
+                        iNoBounce.disable();
+                    };
+                },
+                getDistrictsError: function(err){
+
+                },
+                openAddress: function(){
+                    this.isShowAddressItem = true;
+                    this.getDistrictsForSGApp('/api/services/app/District/GetDistrictsForSGApp');
+                },
+                
+                uploadImage: function(type){
+                    var that = this;
+                    wx.ready(function(){
+                        wx.chooseImage({
+                            count: 1, // 默认9
+                            sizeType: ['original'], 
+                            sourceType: ['album'], 
+                            success: function (res) {
+                                that.wxupload(res.localIds[0], type);
+                            }
+                        });
+                    });
+                },
+
+                wxupload: function(localId, type){
+                    var that = this;
+                    wx.ready(function(){
+                        wx.getLocalImgData({
+                            localId: localId,
+                            success: function (res) {
+                                var localData = res.localData;
+                                if (localData.indexOf('data:image') != 0) {
+                                    localData = 'data:image/jpeg;base64,' +  localData;
+                                }else{
+                                    localData = localData.replace(/\r|\n/g, '').replace('data:image/jgp', 'data:image/jpeg');
+                                }
+                                
+                                if(type == 1){
+                                    that.identityPicture0 = localData;
+                                    that.isFrontImageOk = true;
+                                }else{
+                                    that.identityPicture1 = localData;
+                                    that.isBackImageOk = true;
+                                }
+                                that.watchform();
+                            }
+                        });
+                    });
+                },
+
+                handleChange: function(index){
+                    this.cardIndex = 1;
+                    this.cardIndex = index + 1;
+                },
+
+                loadData: function(apiUrl){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.data.success){
+                        this.identityNo = data.data.result.identityNo;
+                        this.realName = data.data.result.realName;
+                        if(this.realName){
+                            this.realNameStatus = true;
+                            this.isRealNameOk = true;
+                        }
+                        if(this.identityNo){
+                            this.identityNoStatus = true;
+                            this.isIdentityNoOk = true;
+                            this.isInitidentityOk = true;
+                            this.isHaveName = true;
+                        }
+                        if(data.data.result.isIdentifiedUser){
+                            this.isIdentifiedUser = true;
+                            this.isFrontImageOk = true;
+                            this.isBackImageOk = true;
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                },
+
+                watchAddress: function(){
+                    this.isDetailAddressOk = this.address ? true : undefined;
+                    this.watchform();
+                },
+
+                watchRealName: function(){
+                    if(!this.realNameStatus){
+                        this.isRealNameOk = this.realName ? true : false;
+                    }
+                    this.watchform();
+                },
+                watchIdentityNo: function(){
+                    if(!this.isInitidentityOk){
+                        this.isIdentityNoOk = zValidate.identityId(this.identityNo) ? true : false;
+                    }
+                    this.watchform();
+                },
+                watchPhoneNumber: function(){
+                    this.isPhoneNumberOk = zValidate.phone(this.phoneNumber) ? true : false;
+                    this.watchform();
+                },
+                watchform: function(){
+                    if(this.isRealNameOk && this.isIdentityNoOk && this.isPhoneNumberOk && this.isFrontImageOk && this.isBackImageOk && this.isAddressIdsOk && this.isDetailAddressOk){
+                        this.isCanSubmit = false;
+                    }else{
+                        this.isCanSubmit = true
+                    }
+                },
+
+                submitNow: function(){
+                    var idNumber = (this.isIdentifiedUser || this.isHaveName) ? '' : this.identityNo;
+                    var identityName1 = JSON.parse(getCookie('user')).inviteCode+"_"+new Date().getTime();
+                    var identityName2 = JSON.parse(getCookie('user')).inviteCode+"_"+new Date().getTime();
+                    var identityPictureName0 = '';
+                    var identityPictureName1 = '';
+                    
+                    
+                    if(this.isIdentifiedUser){
+                        identityPictureName0 = '';
+                        identityPictureName1 = '';
+                    }else{
+                        if(!empty(this.identityPicture0)){
+                            identityPictureName0 = submitOssPhoto(this.identityPicture0,'profile/idcard/'+identityName1);
+                        }else{
+                            identityPictureName0 = '';
+                        }
+
+                        if(!empty(this.identityPicture1)){
+                            identityPictureName1 = submitOssPhoto(this.identityPicture1,'profile/idcard/'+identityName2);
+                        }else{
+                            identityPictureName1 = '';
+                        }
+                    }
+                    
+                    
+                    var input = {
+                        payMethod: 1,
+                        tradeSource:'JSAPI',
+                        oilCardTypeId: this.cardIndex,
+                        oilCardUserName: this.realName,
+                        oilCardIdentityNo: idNumber,
+                        identityPicture0: identityPictureName0,
+                        identityPicture1: identityPictureName1,
+                        oilCardMobilePhone: this.phoneNumber,
+                        shippingAddress: this.addressText + ' ' +  this.address,
+                        weChatOpenId: fetchLocalStorage('_wechatOpenId')
+                    };
+                    this.$indicator.open();
+                    this.isCanSubmit = true;
+                    commonAjax(this,'/api/services/app/OilCard/ApplyCard','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    if(data.body.success){
+                        var result = data.body.result;
+                        wx.ready(function(){
+                            wx.chooseWXPay({
+                                timestamp:result.weChat.timeStamp,
+                                nonceStr:result.weChat.nonceStr,
+                                package:result.weChat.package,
+                                signType:'MD5',
+                                paySign:result.weChat.sign,
+                                success:function(res){
+                                    if(res){
+                                        this.$toast('充值成功');
+                                    }
+                                },
+                                error:function(err){
+                                    this.$toast(JSON.stringify(err));
+                                }
+                            });
+                        });
+                    }
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    this.$toast(err.body.error.message);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

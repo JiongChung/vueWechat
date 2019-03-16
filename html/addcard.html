@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>添加油卡</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/addcard.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="addcard-page">
+    <div id="app" v-cloak>
+        <mt-header title="添加油卡">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="charge-card-item" id="card-item">
+            <h4 class="title">请选择油卡</h4>
+            <mt-swipe :style="{ height: cardHeight + 'px' }" :auto="0" @change="handleChange">
+                <mt-swipe-item>
+                    <img src="../images/sinopec_card.png">
+                </mt-swipe-item>
+                <mt-swipe-item>
+                        <img src="../images/cnpc_card.png">
+                    </mt-swipe-item>
+                <mt-swipe-item>
+                    <img src="../images/cned_card.png">
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+        <div class="addcard-item">
+            <mt-field label="用户名" placeholder="请输入您的手机号码" v-on:input="watchPhone" type="number" v-model="phone"></mt-field>
+            <mt-field label="加油卡卡号" placeholder="请输入您的加油卡号" v-on:input="watchCardNumber" type="number" v-model="oilCardNumber"></mt-field>
+            <mt-field label="确认加油卡号" placeholder="请再次输入您的加油卡号" v-on:input="watchCardNumber" type="number" v-model="confirmOilCardNumber"></mt-field>
+            <mt-field label="身份证号码" :disabled="identityNoStatus" v-on:input="watchIdentity" placeholder="请再次输入您的身份证号码" v-model="identityNo"></mt-field>
+            <mt-field label="姓名" :disabled="realNameStatus" v-on:input="watchRealName" placeholder="请输入您的姓名" v-model="realName"></mt-field>
+        </div>
+        <div class="tips-item">
+            <p>请添加“个人主卡”，并选择正确的油卡类型；</p>
+            <p>请仔细核对加油卡号，以免充值错误造成不必要的损失。</p>
+        </div>
+        <div class="submit">
+            <mt-button size="large" type="danger" @click="submitNow" :disabled="isCanSubmit">确定添加</mt-button>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                cardHeight: 0,
+                cardIndex: 0,
+                identityNo: '',
+                realName: '',
+                phone: '',
+                oilCardNumber: '',
+                confirmOilCardNumber: '',
+                realNameStatus: false,
+                identityNoStatus: false,
+                isCanSubmit: true,
+                isPhoneOk: false,
+                isOilCardNumberOk: false,
+                isIdentityNoOk: false,
+                isRealNameOk: false,
+                isInitidentityOk: false
+            },
+            mounted: function(){
+                this.cardHeight = document.getElementById("card-item").offsetWidth * 300 / 550;
+                this.loadData('/api/services/app/OilCard/GetIdentifiedInfo');
+            },
+            methods: {
+                handleChange: function(index){
+                    this.cardIndex = index;
+                },
+
+                loadData: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+
+                loadDataSuccess: function(data){
+                    this.identityNo = data.data.result.identityNo;
+                    this.realName = data.data.result.realName;
+                    if(this.realName){
+                        this.realNameStatus = true;
+                        this.isRealNameOk = true;
+                    }
+                    if(this.identityNo){
+                        this.identityNoStatus = true;
+                        this.isIdentityNoOk = true;
+                        this.isInitidentityOk = true;
+                    }
+                },
+
+                watchPhone: function(e){
+                    if(!zValidate.phone(e)){
+                        this.isPhoneOk = false;
+                    }else{
+                        this.isPhoneOk = true;
+                    }
+
+                    this.watchform();
+                },
+
+                watchCardNumber: function(e){
+                    if(this.oilCardNumber && this.confirmOilCardNumber && (this.oilCardNumber == this.confirmOilCardNumber)){
+                        this.isOilCardNumberOk = true;
+                    }else{
+                        this.isOilCardNumberOk = false;
+                    }
+
+                    this.watchform();
+                },
+
+                watchIdentity: function(e){
+                    if(!this.isInitidentityOk){
+                        if(!zValidate.identityId(e)){
+                            this.isIdentityNoOk = false;
+                        }else{
+                            this.isIdentityNoOk = true;
+                        }
+                    }
+
+                    this.watchform();
+                },
+
+                watchRealName: function(e){
+                    if(!this.realName){
+                        this.isRealNameOk = false;
+                    }else{
+                        this.isRealNameOk = true;
+                    }
+
+                    this.watchform();
+                },
+
+                loadDataError: function(err){
+                    console.log(err)
+                },
+
+                watchform: function(){
+                    if(this.isPhoneOk && this.isOilCardNumberOk && this.isIdentityNoOk && this.isRealNameOk){
+                        this.isCanSubmit = false;
+                    }else{
+                        this.isCanSubmit = true;
+                    }
+                },
+
+                submitNow: function(){
+                    var type = this.cardIndex + 1;
+                    var oilCardNo = this.oilCardNumber;
+                    var confirmOilCardNo = this.confirmOilCardNumber;
+                    var oilCardUserName = this.realName;
+                    var idCardNo = this.isInitidentityOk ? '' : this.identityNo;
+                    var oilCardMobilePhone = this.phone;
+
+                    var input = {
+                        userId: JSON.parse(getCookie('user')).userId,
+                        oilCardTypeId: type,
+                        oilCardNo: oilCardNo,
+                        confirmOilCardNo: confirmOilCardNo,
+                        oilCardUserName: oilCardUserName,
+                        oilCardIdentityNo: idCardNo,
+                        oilCardMobilePhone: oilCardMobilePhone
+                    };
+
+                    this.$indicator.open();
+                    this.isCanSubmit = true;
+
+				    commonAjax(this,'/api/services/app/OilCard/AddCard','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    console.log(data)
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    this.$toast('添加油卡成功');
+                    setTimeout(function() {
+                        goBack();
+                    }, 1000);
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+
+                    if(err.body.error.validationErrors == null){
+                        this.$toast(err.body.error.message);
+                    }else{
+                        this.$toast(err.body.error.validationErrors[0].message);
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

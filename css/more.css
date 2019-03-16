@@ -1,0 +1,106 @@
+.more-list{
+    padding: 1rem 0;
+}
+.more-list li a{
+    padding: 1.5rem 1.5rem;
+    display: block
+}
+.more-list li a span{
+    padding-right: 1rem;
+    color: #ee0000
+}
+.more-list li{
+    position: relative;
+    border-bottom: dashed 1px #eeeeee;
+    font-size: 1.6rem;
+}
+
+.contact-item{
+    padding: 1.5rem;
+    font-size: 1.4rem;
+}
+.contact-item dl{
+    padding-bottom: 2rem;
+}
+.contact-item dt{
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+}
+
+.contact-item ul{
+    display: flex
+}
+
+.contact-item li{
+    flex: 1;
+    padding-top: 1rem;
+}
+.contact-item li + li{
+    margin-left: 2rem;
+    text-align: center;
+}
+.contact-item li img{
+    max-height: 10rem;
+    width: auto;
+    margin: auto;
+}
+
+.contact-tel-item{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 1.6rem;
+}
+
+.contact-tel-item a{
+    background: #ee0000;
+    color: #ffffff;
+    display: block;
+    padding: 1.5rem 0;
+}
+
+.aboutus-item{
+    padding: 1rem 1.5rem;
+    line-height: 1.5;
+}
+
+.aboutus-item p{
+    padding: 0.5rem 0;
+    text-indent: 2em;
+    font-size: 1.6rem;
+}
+
+.faq-item{
+    padding: 1rem 0;
+}
+.faq-item li{
+    position: relative;
+    border-bottom: dashed 1px #eeeeee;
+    font-size: 1.6rem;
+}
+.faq-item li a{
+    padding: 1.5rem;
+    display: block
+}
+
+.faqdetail-item{
+    padding: 1rem 1.5rem;
+}
+.faqdetail-item dl{
+    padding-bottom: 1.5rem;
+    font-size: 1.4rem;
+}
+.faqdetail-item dt{
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+}
+.faqdetail-item p{
+    line-height: 1.5;
+    padding: 0.5rem 0;
+}
+
+.faqdetail-item .content{
+    display: none;
+}

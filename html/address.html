@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css?111111111">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/address.css?442224">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="address-page">
+    <div id="app" v-cloak>
+        <mt-header title="我的收货地址">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="address-item">
+            <ul>
+                <li v-for="item in myAddressList">
+                    <span class="name">{{item.shipTo}}</span>
+                    <span class="phone">{{item.phoneNumber}}</span>
+                    <span class="default" v-show="item.isDefault">默认</span>
+                    <span class="tags" v-show="item.tag">{{item.tag}}</span>
+                    <span class="address">{{item.districtName}} {{item.address}}</span>
+                    <span class="options">
+                        <b class="remove" @click="remove(item.id)">删除</b>
+                        <b class="edit" @click="edit(item.id)">编辑</b>
+                    </span>
+                </li>
+            </ul>
+            <div class="nodata" v-show="myAddressList.length == 0">
+                暂无地址
+            </div>
+        </div>
+        <div class="add-address-item" @click="add">
+            新增地址
+        </div>
+        <div class="editaddress-item" :class="{show: isShowAddress}">
+            <div class="address-main">
+                <mt-header :title="title">
+                    <mt-button @click="close()" slot="right"><i class="icon iconfont">&#xe650;</i></mt-button>
+                </mt-header>
+                <div class="addressbox">
+                    <ul>
+                        <li>
+                            <span class="title">姓名</span>
+                            <input type="text" v-on:input="watchShipTo" placeholder="请输入姓名" v-model="addressForEditList.shipTo">
+                        </li>
+                        <li>
+                            <span class="title">手机号码</span>
+                            <input type="text" placeholder="请输入手机号码" v-on:input="watchPhoneNumber" v-model="addressForEditList.phoneNumber">
+                        </li>
+                        <li @click="openAddress">
+                            <span class="title">所在地区</span>
+                            <div class="inputbox">
+                                {{addressForEditList.districtName}}
+                                <span><i class="icon iconfont">&#xe60c;</i></span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="title">详细地址</span>
+                            <input type="text" placeholder="请输入详细地址" v-on:input="watchAddress" v-model="addressForEditList.address">
+                        </li>
+                        <li>
+                            <span class="title">默认地址</span>
+                            <div class="inputbox"  style="padding-top:0.7rem;padding-bottom: 0.7rem;"><mt-switch v-model="addressForEditList.isDefault"></mt-switch></div>
+                        </li>
+                        <li>
+                            <span class="title">标签</span>
+                            <div class="inputbox" style="padding-top:0.9rem;padding-bottom: 0.9rem;">
+                                <span class="mint-badge is-size-normal"
+                                  v-for="item in addressForEditList.addressTag" 
+                                  :id="'badge_'+item.id" 
+                                  :class="{active: item.value == addressForEditList.tag}"
+                                  @click="selectTags(item.id, item.value)">
+                                    {{item.value}}
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="button">
+                        <mt-button size="large" type="danger" :disabled="isCanSaveOk" @click="onSave">保存</mt-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <select-address-component 
+            ref="selectaddress"
+            :is-show-address-item="isShowAddressItem"
+            :address-list="addressList"
+            :address-ids="addressIds"
+            v-on:listenaddress="showMsgFromAddress">
+        </select-address-component>
+    </div>
+    <script src="../components/selectAddress.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script src="../js/inobounce.min.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                myAddressList: [],
+                title: '新增地址',
+                isShowAddress: false,
+                addressForEditList: {},
+                isShowAddressItem: false,
+                addressList: {
+                    list: [],
+                    province: [],
+                    city: [],
+                    country: []
+                },
+                addressIds: {
+                    provinceId: '',
+                    cityId: '',
+                    countryId: '',
+                    provinceText: '请选择省份',
+                    cityText: '请选择城市',
+                    countryText: '请选择县区',
+                    isProvince: true,
+                    isCity: false,
+                    isDstrict: false,
+                    isProvinceOk: false,
+                    isCityOk: false,
+                    isDstrictOk: false
+                },
+                
+                isOnSubmitOk: true,
+                isCanSaveOk: true,
+                isShipToOk: false,
+                isPhoneNumberOk: false,
+                isFullAddressOk: false
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/MyAddress/GetMyAddress');
+            },
+            methods: {
+                watchShipTo: function(){
+                    this.isShipToOk = this.addressForEditList.shipTo ? true : false;
+                    this.watchFrom();
+                },
+                watchPhoneNumber: function(){
+                    this.isPhoneNumberOk = zValidate.phone(this.addressForEditList.phoneNumber) ? true : false;
+                    this.watchFrom();
+                },
+                watchAddress: function(){
+                    this.isFullAddressOk = this.addressForEditList.address ? true : false;
+                    this.watchFrom();
+                },
+                watchFrom: function(){
+                    if(this.isShipToOk && this.isPhoneNumberOk && this.isFullAddressOk){
+                        this.isCanSaveOk = false;
+                    }else{
+                        this.isCanSaveOk = true;
+                    }
+                },
+                showMsgFromAddress(data){
+                    if(typeof(data) == 'object'){
+                        this.addressForEditList.districtId = data.districtId;
+                        this.addressForEditList.districtName = data.districtName;
+                    }
+                    this.isShowAddressItem = false;
+                    if(isIos()){
+                        iNoBounce.enable();
+                    };
+                    console.log(data);
+                },
+                
+                getDistrictsForSGApp: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.getDistrictsSuccess,this.getDistrictsError);
+                },
+                getDistrictsSuccess: function(data){
+                    this.addressList.list = data.body.result.items;
+                    this.addressList.province = data.body.result.items;
+                    if(this.addressIds.provinceId && this.addressIds.cityId && this.addressIds.countryId){
+                        for(var i=0; i<this.addressList.province.length; i++){
+                            if(this.addressIds.provinceId == this.addressList.province[i].id){
+                                for(var j=0; j<this.addressList.province[i].sub.length; j++){
+                                    if(this.addressIds.cityId == this.addressList.province[i].sub[j].id){
+                                        this.addressList.list = this.addressList.province[i].sub[j].sub;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if(isIos()){
+                        iNoBounce.disable();
+                    };
+                },
+                getDistrictsError: function(err){
+
+                },
+                openAddress: function(){
+                    this.isShowAddressItem = true;
+                    this.getDistrictsForSGApp('/api/services/app/District/GetDistrictsForSGApp');
+                    
+                },
+                loadData: function(apiUrl){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.data.success){
+                        this.myAddressList = data.data.result.items;
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                },
+
+                add: function(){
+                    this.title = '新增地址';
+                    this.isShowAddress = true;
+                    this.GetMyAddressForEdit('/api/services/app/MyAddress/GetMyAddressForEdit');
+                },
+
+                GetMyAddressForEdit: function(apiUrl){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.getMyAddressForEditSuccess,this.getMyAddressForEditError);
+                },
+
+                getMyAddressForEditSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.addressForEditList = data.body.result;
+                        this.watchShipTo();
+                        this.watchPhoneNumber();
+                        this.watchAddress();
+                    }
+                },
+
+                getMyAddressForEditError: function(err){
+                    this.$indicator.close();
+                },
+
+                remove: function(id){
+                    this.$messagebox.confirm('是否删除此地址？').then(action => {
+                        this.$indicator.open();
+                        var apiUrl = '/api/services/app/MyAddress/DeleteMyAddress?id='+id;
+                        commonAjax(this,apiUrl,'delete','',this.removeSuccess,this.removeError);
+                    });
+                },
+
+                removeSuccess: function(data){
+                    this.$toast('删除地址成功');
+                    this.$indicator.close();
+                    this.loadData('/api/services/app/MyAddress/GetMyAddress');
+                },
+
+                removeError: function(){
+                    this.$toast(err.body.error.message);
+                    this.$indicator.close();
+                },
+
+                edit: function(id){
+                    this.title = '编辑地址';
+                    this.isShowAddress = true;
+                    this.GetMyAddressForEdit('/api/services/app/MyAddress/GetMyAddressForEdit?id='+id);
+                },
+
+                close: function(){
+                    this.isShowAddress = false;
+                },
+                
+                selectTags: function(id, text){
+                    for(var i=1; i<3; i++){
+                        document.getElementById('badge_'+i).classList.remove('active');
+                    }
+                    document.getElementById('badge_'+id).classList.add('active');
+                    this.addressForEditList.tag = text;
+                },
+
+                onSave: function(){
+                    var input = {
+                        id: this.addressForEditList.id,
+                        shipTo: this.addressForEditList.shipTo,
+                        phoneNumber: this.addressForEditList.phoneNumber,
+                        districtId: Number(this.addressForEditList.districtId),
+                        districtName: this.addressForEditList.districtName,
+                        address: this.addressForEditList.address,
+                        isDefault: this.addressForEditList.isDefault,
+                        tag: this.addressForEditList.tag
+                    };
+                    this.$indicator.open();
+                    this.isCanSaveOk = true;
+                    commonAjax(this,'/api/services/app/MyAddress/CreateOrUpdateMyAddress','post',input,this.saveSuccess,this.saveError);
+                },
+
+                saveSuccess: function(data){
+                    this.$indicator.close();
+                    this.isShowAddress = false;
+                    if(data.data.success){
+                        this.$toast('保存成功');
+                        this.loadData('/api/services/app/MyAddress/GetMyAddress');
+                    }else{
+                        this.$toast('保存失败');
+                    }
+                },
+
+                saveError: function(err){
+
+                }
+            }
+        })
+    </script>
+</body>
+</html>

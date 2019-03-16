@@ -1,0 +1,77 @@
+.charge-card-item{
+    margin: 0 1.5rem;
+}
+.charge-card-item .text{
+    position: absolute;
+    bottom: 2.5rem;
+    left: 2rem;
+    color: #ffffff;
+    font-size: 2.4rem;
+    display: block;
+    text-align: center;
+}
+.transference-page h4{
+   font-weight: normal;
+   padding: 1rem 0 0.8rem;
+   font-size: 1.4rem;
+}
+
+.money-item{
+    padding:1rem 2rem;
+}
+
+.money-item ul{
+    display: flex;
+}
+
+.money-item li{
+    flex: 1;
+    background: #fe7575;
+    text-align: center;
+    box-shadow: 0.125rem 0 0.5rem rgba(229,94,94,1);
+    color: #ffffff;
+    padding: 0.8rem 0;
+    border-radius: 0.5rem;
+}
+
+.money-item li .title{
+    font-size: 1.6rem;
+    display: block;
+    padding: 0 0 0.5rem;
+}
+
+.money-item li .amount{
+    display: block;
+    font-size: 2rem;
+    font-weight: 600
+}
+
+.money-item li:first-child{
+    margin-right: 2rem;
+    background: rgba(255,188,65,1);
+    box-shadow: 0.125rem 0 0.5rem rgba(222,162,52,1);
+}
+
+.transference-item{
+    padding: 1rem 1.5rem;
+    border-top: solid 0.7rem #f4f4f4;
+    margin-top: 1rem;
+}
+
+.mint-cell-wrapper{
+    padding: 0;
+}
+
+.getcode{
+    font-size: 1.2rem;
+    color: #8579f7;
+    cursor: pointer;
+    margin-left: 2rem;
+}
+
+.transference-item .tips{
+    color: #ee0000;
+    padding: 1rem 0 1.5rem;
+    display: block;
+    font-weight: 600
+}

@@ -1,0 +1,124 @@
+.commission-item{
+    padding: 1.5rem 7.5rem 1.5rem 1.5rem;
+    position: relative;
+    border-bottom: solid 0.5rem #f4f4f4;
+}
+
+.amount{
+    font-size: 2rem;
+    color: #ee0000;
+    padding-bottom: 0.7rem;
+}
+
+.commission-item button{
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.2rem;
+    height: auto;
+    padding: 0.7rem 1rem;
+}
+
+.commission-list{
+    padding: 1rem 1.5rem;
+}
+
+.commission-list li{
+    border-top: dashed 1px #eee;
+    padding: 1rem 0;
+    overflow: hidden;
+    font-size: 1.4rem;
+}
+
+.commission-list li:first-child{
+    border-top: none;
+}
+
+.commission-list li span{
+    float: left;
+    width: 28%;
+}
+.commission-list li span:nth-child(2){
+    text-align: center;
+    width: 50%;
+}
+.commission-list li span:nth-child(3){
+    text-align: right;
+    width: 22%;
+}
+.commission-list ol{
+    font-weight: 600;
+}
+
+.drawing-item{
+    background: #f4f4f4;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.drawing-item .amount{
+    font-size: 3rem;
+    color: #ee0000;
+    padding: 0 0.3rem
+}
+
+.drawing-item span{
+    color: blue
+}
+.drawing-item .first{
+    padding-bottom: 1rem;
+}
+
+.drawing-main{
+    padding: 2rem 3rem 0 1.5rem;
+    font-size: 1.4rem;
+}
+
+.drawing-main li{
+    position: relative;
+    padding-left: 8rem;
+    min-height: 5rem;
+}
+.drawing-main li span{
+    position: absolute;
+    top: 1.2rem;
+    left: 0;
+    width: 6.5rem;
+    text-align: right;
+}
+
+.drawing-main li b{
+    font-weight: normal;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: blue;
+    padding: 1.2rem 1rem;
+    font-size: 1.2rem;
+}
+
+.drawing-main li:last-child{
+    padding-left: 1.7rem;;
+    padding-top: 1rem;
+}
+
+.drawing-main .inputchange,.drawing-main select{
+    width: 100%;
+    border: solid 1px #eee;
+    padding: 1rem 1rem;
+    border-radius: 0.3rem;
+}
+
+.drawing-main .tabs{
+    border:solid 1px #eee;
+    padding: 0.7rem 1rem;
+    margin-right: 1rem;
+    background: transparent;
+    border-radius: 0.3rem;
+}
+.drawing-main .tabs.active{
+    background: #ee0000;
+    color: #ffffff;
+    border-color: #ee0000;
+}

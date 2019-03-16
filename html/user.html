@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/user.css?desd">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="user-page">
+    <div id="app" v-cloak>
+        <div class="header-item">
+            <div class="user-info">
+                <a class="img" href="setting.html"><img :src="userInfo.logo" alt=""></a>
+                <span class="name">{{userInfo.nickName}}</span>
+                <span class="level" v-show="userInfo.gradeName">{{userInfo.gradeName}}</span>
+                <span class="setting">
+                   <a href="setting.html"><i class="icon iconfont">&#xe65c;</i></a>
+                </span>
+            </div>
+            <div class="assets-item">
+                <span>
+                    <a href="oilbean.html">
+                        <em>{{userInfo.availablePoint}}</em>
+                        油豆
+                    </a>
+                </span>
+                <span>
+                    <a href="oilassets.html">
+                        <em>{{userInfo.availableCoin}}</em>
+                        油力值
+                    </a>
+                </span>
+                <span>
+                    <a href="commission.html">
+                        <em>{{userInfo.totalCommission}}</em>
+                        佣金
+                    </a>
+                </span>
+                <span>
+                    <a href="coupon.html">
+                        <em>{{userInfo.availableCoupon}}</em>
+                        卡券
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="menu-item">
+            <ul class="clearfix">
+                <li>
+                    <a href="oilcard.html">
+                        <span class="img"><i class="icon iconfont ioilcard">&#xe64b;</i></span>
+                        我的油卡
+                    </a>
+                </li>
+                <li>
+                    <a href="chargerecord.html">
+                        <span class="img"><i class="icon iconfont irecord">&#xe6a0;</i></span>
+                        充值记录
+                    </a>
+                </li>
+                <li>
+                    <a href="fans.html">
+                        <span class="img"><i class="icon iconfont ifan">&#xe64d;</i></span>
+                        我的油粉
+                    </a>
+                </li>
+                <li>
+                    <a href="area.html">
+                        <span class="img"><i class="icon iconfont iarea">&#xe649;</i></span>
+                        我的区域
+                    </a>
+                </li>
+                <li>
+                    <a href="bankcard.html">
+                        <span class="img"><i class="icon iconfont ibankcard">&#xe693;</i></span>
+                        我的银行卡
+                    </a>
+                </li>
+                <li>
+                    <a href="more.html">
+                        <span class="img"><i class="icon iconfont imore">&#xe647;</i></span>
+                        更多
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="share-item">
+            <span class="img">
+                <a href="share.html">
+                    <img src="../images/share.png" alt="">
+                </a>
+            </span>
+        </div>
+        <footer-component :is-active="isActive"></footer-component>
+    </div>
+    <script src="../components/footer.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var footerComponent = Vue.extend({
+            template: footerHtml,
+            props: ['isActive'],
+            methods: {
+                openFooter: function(id){
+                    if(id == 0){
+                        window.location.href = '../index.html';
+                    }else if(id == 1){
+                        window.location.href = 'find.html';
+                    }else if(id == 3){
+                        window.location.href = 'transference.html';
+                    }
+                }
+            }
+        });
+        Vue.component('footer-component', footerComponent);
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                isActive: [false,false,false,false,true],
+                userInfo: {
+                    logo: '../images/buddha_icon.png',
+                    nickName: '',
+                    gradeName: '',
+                    availablePoint: 0,
+                    availableCoin: 0,
+                    totalCommission: 0,
+                    availableCoupon: 0
+                }
+            },
+            mounted: function(){
+                this.GetMyProfile('/api/services/app/MyProfile/GetMyProfile');
+            },
+            methods: {
+                GetMyProfile: function(apiUrl){
+                    commonAjax(this,apiUrl,'get','',this.getMyProfileSuccess,this.getMyProfileError);
+                },
+
+                getMyProfileSuccess: function(data){
+                    this.userInfo = data.body.result;
+                },
+
+                getMyProfileError: function(err){
+                    console.log(err)
+                }
+            }
+        })
+    </script>
+</body>
+</html>

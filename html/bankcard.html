@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/bankcard.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js?334"></script>
+</head>
+<body class="bankcard-page">
+    <div id="app" v-cloak>
+        <mt-header title="我的银行卡">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="bankcard-item">
+            <ul class="bankcard-list">
+                <li v-for="item in myBankCardList">
+                    <span class="name">{{item.bankCardName}}</span>
+                    <span class="number">{{item.accountNo}}</span>
+                </li>
+            </ul>
+            <div class="addbankcard">
+               <mt-button size="large" @click="addBankCard" type="default">添加银行卡</mt-button>
+            </div>
+        </div>
+        <div class="addbankcard-item" :class="{show: isAddCard}">
+            <div class="addbankcard-main">
+                <div class="tips-item">请准确输入银行卡开户支行，否则会导致提现失败。</div>
+                <mt-field label="持卡人" placeholder="请输入持卡人姓名" v-on:input="watchRealName" v-model="realName"></mt-field>
+                <mt-field label="银行卡号" placeholder="请输入银行卡号" v-on:input="watchAccountNo" v-model="accountNo"></mt-field>
+                <mt-field label="开户支行" placeholder="请输入银行卡开户支行" v-on:input="watchBankCardSubBranch" v-model="bankCardSubBranch"></mt-field>
+                <mt-button size="large" @click="onSubmit" class="button" :disabled="status.isCanSubmit" type="danger">确定</mt-button>
+                <mt-button size="large" @click="cancel" type="default">取消</mt-button>
+            </div>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                myBankCardList: [],
+                isAddCard: false,
+                realName: '',
+                accountNo: '',
+                bankCardSubBranch: '',
+                status: {
+                    isRealNameOk: false,
+                    isAccountNoOk: false,
+                    isBankCardSubBranchOk: false,
+                    isCanSubmit: true
+                }
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/UserAssetDrawingMethod/GetAllBankCards');
+            },
+            methods: {
+                
+                loadData: function(apiUrl){
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.data.success){
+                        this.myBankCardList = data.data.result;
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                },
+
+                addBankCard: function(){
+                    this.isAddCard = true;
+                },
+
+                watchRealName: function(){
+                    this.status.isRealNameOk = this.realName ? true : false;
+                    this.watchform();
+                },
+
+                watchAccountNo: function(){
+                    this.status.isAccountNoOk = this.accountNo ? ((this.accountNo.length < 10) ? false : true) : false;
+                    this.watchform();
+                },
+
+                watchBankCardSubBranch: function(){
+                    this.status.isBankCardSubBranchOk = this.bankCardSubBranch ? true : false;
+                    this.watchform();
+                },
+
+                watchform: function(){
+                    if(this.status.isRealNameOk && this.status.isAccountNoOk && this.status.isBankCardSubBranchOk){
+                        this.status.isCanSubmit = false;
+                    }else{
+                        this.status.isCanSubmit = true;
+                    }
+                },
+                cancel: function(){
+                    this.isAddCard = false;
+                },
+
+                onSubmit: function(){
+                    var input = {
+                        accountNo: this.accountNo,
+                        bankCardUserName: this.realName,
+                        bankCardSubBranch: this.bankCardSubBranch
+                    };
+                    this.$indicator.open();
+                    this.isCanSubmit = true;
+                    commonAjax(this, '/api/services/app/UserAssetDrawingMethod/CreateOrUpdateAssetDrawingMethod','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    if(data.data.success){
+                        this.$toast('保存银行卡成功');
+                        this.isAddCard = false;
+                        this.loadData();
+                    }else{
+                        this.$toast('保存银行卡失败');
+                    }
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.isCanSubmit = false;
+                    this.$toast(err.body.error.message);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

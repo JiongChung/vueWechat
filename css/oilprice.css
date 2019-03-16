@@ -1,0 +1,36 @@
+.oil-price-item{
+    background: -webkit-linear-gradient(#f6f7f1, #ececec);
+    background: -o-linear-gradient(#f6f7f1, #ececec);
+    background: -moz-linear-gradient(#f6f7f1, #ececec);
+    background: linear-gradient(#f6f7f1, #ececec);
+    padding: 0.2rem 0;
+    border-radius: 3rem;
+    height: 4rem;
+    line-height: 1.8rem;
+    overflow: hidden;
+    box-shadow: 0 0 0.5rem rgba(0,0,0,0.2);
+    position: relative;
+    margin: -2rem 0.5rem 0;
+}
+.oil-price-item ul{
+    display: flex
+}
+
+.oil-price-item li{
+    flex: 1;
+    padding-left: 1rem;
+}
+.oil-price-item li:first-child{
+    text-align: center
+}
+.oil-price-item span{
+    display: block
+}
+.oil-price-item .title{
+    font-size: 1.4rem;
+    color: #000000;
+}
+
+.oil-price-item li:first-child .title{
+    font-weight: 600;
+}

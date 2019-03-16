@@ -1,0 +1,73 @@
+.bankcard-item{
+    padding: 2rem 2.5rem;
+}
+
+.bankcard-item li{
+    border-radius: 1rem;
+    box-shadow: 0 0.25rem 0.8rem 0 rgba(205,55,55,0.5);
+    padding: 2rem;
+    color: #FFFFff;
+    font-size:1.4rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right,#FB6262,#CD3737);
+}
+
+.bankcard-item li span{
+    display: block
+}
+.bankcard-item li .name{
+    font-size: 1.6rem;
+}
+.bankcard-item li .number{
+    font-size: 2.6rem;
+    padding-top: 2rem
+}
+.addbankcard{
+    padding: 2rem 4rem;
+    text-align: center
+}
+
+.addbankcard-item{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    top: 100%;
+}
+.addbankcard-item.show{
+    top: 0;
+}
+
+.addbankcard-main{
+    position: absolute;
+    bottom: -25rem;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 1rem 1.5rem;
+    transition: bottom 0.3s ease-in-out 0.1s;
+    height: 25rem;
+}
+
+.addbankcard-item.show .addbankcard-main{
+    bottom: 0;
+    transition:bottom 0.3s ease-in-out 0.1s;
+}
+
+.addbankcard-main .button{
+    margin: 1rem 0; 
+}
+
+.addbankcard-main .mint-button--default{
+    background: #ffffff;
+}
+.addbankcard-main .tips-item{
+    color: #ff0000;
+    background: #f4f4f4;
+    margin-top: -1rem;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding: 1rem 1.5rem;
+}

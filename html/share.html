@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css?43434">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="share-page">
+    <div id="app" v-cloak>
+        <mt-header title="邀请分享">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+            <mt-button slot="right" @click="share"><i class="icon iconfont">&#xe633;</i></mt-button>
+        </mt-header>
+        <div class="invite-list">
+            <a href="fans.html">邀请列表</a>
+        </div>
+        <div class="sharepage-item">
+            <img src="../images/share1.png" alt="">
+        </div>
+        <div class="sharepage-item">
+            <button @click="share">现在邀请，马上获得加油金</button>
+            <img src="../images/share2.png" alt="">
+            <br /><br />
+        </div>
+        <div class="share-item-box" v-show="isShowShare" @click="closeShareItem">
+            <span class="img"><img src="../images/fenxiang_content.png" alt=""></span>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var wx;
+        var setinviteCode = 15449;
+        
+        var app = new Vue({
+            el: '#app',
+            data:{
+                isShowShare: false
+            },
+            mounted: function(){
+            },
+            methods: {
+                share: function(){
+                    this.isShowShare = true;
+                },
+                closeShareItem: function(){
+                    this.isShowShare = false;
+                },
+
+                
+
+                _onMenuShareTimeline: function(){
+                    wx.onMenuShareTimeline({  
+                        title: '老铁，我在【智慧油联】充值加油6.7折哦，超级划算，分享给你',
+                        link: 'http://wx.zhihuiyoulian.com/invite.html?inviteCode='+setinviteCode,
+                        imgUrl: 'http://wx.zhihuiyoulian.com/wechat/image/icon/logo.png', // 分享图标
+                        success: function () {   
+                            // _toast('分享成功');
+                        },  
+                        cancel: function () {   
+                            
+                        }  
+                    });
+                },
+
+                _onMenuShareAppMessage: function(){
+                    wx.onMenuShareAppMessage({  
+                        title: '老铁，我在【智慧油联】充值加油6.7折哦，超级划算，分享给你',
+                        desc: '支持全国欧粤、中石油、中石化各大站点加油，现在下载、立享超级油惠！',
+                        link: 'http://wx.zhihuiyoulian.com/invite.html?inviteCode='+setinviteCode,
+                        imgUrl: 'http://wx.zhihuiyoulian.com/wechat/image/icon/logo.png', // 分享图标
+                        type: '', // 分享类型,music、video或link，不填默认为link  
+                        dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空  
+                        success: function () {   
+                            // _toast('分享成功');
+                        },  
+                        cancel: function () {   
+                            // 用户取消分享后执行的回调函数  
+                        }  
+                    }); 
+                }
+            }
+        })
+
+        function _onMenuShareTimeline(){
+            
+        }
+
+        function _onMenuShareAppMessage(){
+            
+        }
+    </script>
+</body>
+</html>

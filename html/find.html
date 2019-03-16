@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="fix-header-height">
+    <div id="app" v-cloak>
+        <mt-header fixed title="智慧油联"></mt-header>
+        <banner-component :banner-list="bannerList" :banner-height="bannerHeight"></banner-component>
+        <div class="find-menu-list-item">
+            <ul class="clearfix">
+                <li @click="handleClick">
+                    <span class="img">
+                        <i class="icon iconfont mall">&#xe611;</i>   
+                    </span>
+                    <span class="text">商城</span>
+                </li>
+                <li @click="handleClick">
+                    <span class="img">
+                        <i class="icon iconfont violation">&#xe61a;</i>   
+                    </span>
+                    <span class="text">违章查询</span>
+                </li>
+                <li @click="handleClick">
+                    <span class="img">
+                        <i class="icon iconfont insurance">&#xe612;</i>   
+                    </span>
+                    <span class="text">特惠车险</span>
+                </li>
+            </ul>
+        </div>
+        <footer-component :is-active="isActive"></footer-component>
+    </div>
+
+    <script src="../components/homeBanner.js"></script>
+    <script src="../components/footer.js"></script>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var bannerComponent = Vue.extend({
+            template: homeBannerHtml,
+            props: ['bannerHeight','bannerList'],
+            methods: {
+                clickImage: function(index){
+                    console.log(index)
+                }
+            }
+        });
+        Vue.component('banner-component', bannerComponent);
+
+
+        var footerComponent = Vue.extend({
+            template: footerHtml,
+            props: ['isActive'],
+            methods: {
+                openFooter: function(id){
+                    if(id == 0){
+                        window.location.href = '../index.html';
+                    }else if(id == 3){
+                        window.location.href = 'transference.html';
+                    }else if(id == 4){
+                        window.location.href = 'user.html';
+                    }
+                }
+            }
+        });
+        Vue.component('footer-component', footerComponent);
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                bannerList: [],
+                bannerHeight: 0,
+                isActive: [false,true,false,false,false]
+            },
+            mounted: function(){
+                this.bannerHeight = document.body.clientWidth * 7 / 15;
+                this.GetHomeSlide(API + '/api/services/app/AppSetting/GetHomeSlide');
+            },
+            methods: {
+                GetHomeSlide: function(apiUrl){
+                    this.$http.get(apiUrl).then(function(response) {
+                       this.bannerList = response.data.result.slide;
+                    }).catch(error => {
+                        console.log(error)
+                    });
+                },
+
+                handleClick: function() {
+                    this.$toast('努力搭建中，敬请期待...')
+                }
+            }
+        })
+    </script>
+</body>
+</html>

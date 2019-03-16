@@ -1,0 +1,30 @@
+.login-page{
+    background: #f4f4f4
+}
+
+.logo{
+    width: 10rem;
+    height: 6rem;
+    margin: 5rem auto 0;
+    text-align: center;
+}
+
+.logo .iconfont{
+    color: #ee0000;
+    font-size: 6rem;
+}
+
+.login-item{
+    margin: auto;
+    width: 80%;
+    padding-top: 3rem;
+}
+
+.login-item input{
+    margin: 0;
+    padding: 0;
+    font-size: 1.4rem;
+}
+.login-item .mint-cell{
+    margin-bottom: 2rem;
+}

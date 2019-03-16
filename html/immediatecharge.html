@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>即时充值</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css?34">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/charge.css?323">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="charge-page">
+    <div id="app" v-cloak>
+        <mt-header title="即时充值">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="charge-card-item" id="card-item">
+            <h4 class="title">请选择油卡</h4>
+            <mt-swipe :style="{ height: cardHeight + 'px' }" :show-indicators="false" :auto="0" @change="handleChange">
+                <mt-swipe-item v-for="(item, index) in myCardList">
+                    <div v-if="item.oilCardTypeId === 1">
+                        <img src="../images/zhongshiyou_card.png">
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 2">
+                        <img src="../images/zhongshihua_card.png">
+                    </div>
+                    <div v-else-if="item.oilCardTypeId === 3">
+                        <img src="../images/ouyue_card.png">
+                    </div>
+                    <div v-else>
+                        <a href="addcard.html"><img src="../images/tianjiayouka_card.png"></a>
+                    </div>
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+        <div class="charge-amount">
+            <h4 class="title">充值金额</h4>
+            <ul class="clearfix" id="amountList">
+                <li v-for="(item, index) in amountList">
+                      <span v-if="item.amount > 0" @click="selectAmount(item.amount, index)"  :id="index">{{item.amount}}元
+                      </span>
+                      <span v-else @click="selectAmount(0, index)" :id="index">{{customizeText}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="charge-order">
+            <h4 class="title">订单详情<span class="tips">(2-48小时内到账)</span></h4>
+            <div class="order-main">
+                <span>即时充值</span>
+                <span>即时到账</span>
+                <span>￥{{amount}}</span>
+            </div>
+            <div class="order-item-list">
+                <ul>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/song.png" alt=""></span>
+                        送<b>2%</b>油豆
+                        <span class="qty"><b>+{{oilbeanQty}}</b>个</span>
+                    </li>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/song.png" alt=""></span>
+                        送<b>3%</b>油力值
+                        <span class="qty"><b>+{{oilPowerQty}}</b>个</span>
+                    </li>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/youdou_icon.png" alt=""></span>
+                        油豆：1油豆抵扣1人民币
+                    </li>
+                    <li class="clearfix">
+                        <span class="img"><img src="../images/youlizhi_icon.png" alt=""></span>
+                        油力值：1油力值抵扣1人民币用于商城、联盟商家消费
+                    </li>
+                </ul>
+                <div class="agreement-item clearfix">
+                    <span class="radio" :class="{ active: agreementStatus }" @click="checkRadio">我已阅读并同意</span>
+                    <a href="#" class="agreement">《智慧油联充值协议》</a>
+                </div>
+            </div>
+
+        </div>
+        <button @click="chargeNow" size="large" :disabled="chargeStatus" type="danger" class="chargenow">立即充值</button>
+        <div id="customize-amount-item" :class="{ show: showCustomizeAmount }">
+            <div class="customize-box">
+                <h4>请输入金额(100的倍数)</h4>
+                <input type="number" type="number" v-model="customizeamount" placeholder="请输入100的倍数金额">
+                <div class="submit">
+                    <span @click="cancel">取消</span>
+                    <span @click="confirmAmount">确定</span>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var wx;
+        var app = new Vue({
+            el: '#app',
+            data:{
+                cardHeight: 0,
+                myCardList: [],
+                amountList: [],
+                agreementStatus: false,
+                chargeStatus: true,
+                cardStatus: true,
+                fullCardStatus: false,
+                oilbeanQty: 0,
+                oilPowerQty: 0,
+                customizeamount: '',
+                showCustomizeAmount: false,
+                customizeText: '自定义',
+                isCustomizeStatus: false,
+                cardIndex: 0,
+                salesPlansList: [],
+                amount: 0
+            },
+            mounted: function(){
+                this.loadData('/api/services/app/UserAsset/RechargeInit');
+            },
+            methods: {
+                loadData: function(apiUrl){
+                    var value = {rechargeType: 2}
+                    commonAjax(this,apiUrl,'post',value,this.loadDataSuccess,this.loadDataError);
+                },
+
+                loadDataSuccess: function(response){
+                    this.myCardList = response.data.result.myCards;
+                    this.salesPlansList = response.data.result.salesPlans;
+                    if(this.myCardList.length == 0){
+                        this.cardHeight = document.getElementById("card-item").offsetWidth * 400 / 960;
+                        this.cardStatus = false;
+                    }else{
+                        this.cardStatus = true;
+                        this.cardHeight = document.getElementById("card-item").offsetWidth * 438 / 968;
+                    }
+                    if(this.myCardList.length < 2){
+                        this.myCardList.push({'oilCardTypeId': 999});
+                        this.fullCardStatus = false;
+                    }else{
+                        this.fullCardStatus = true;
+                    }
+
+                    this.amountList = response.data.result.instantRechargeAmount;
+
+                    setTimeout(() => {
+                        this.selectAmount(100,0);
+                    },10);
+                },
+
+                loadDataError: function(err){},
+
+                handleChange: function(index){
+                    this.cardIndex = index;
+                    if(!this.fullCardStatus){
+                        if(index == 1){
+                            this.cardStatus = false;
+                            this.chargeStatus = true;
+                        }else{
+                            this.cardStatus = true;
+                            if(this.agreementStatus && this.isCustomizeStatus){
+                                this.chargeStatus = false;
+                            }
+                        }
+                    }else{
+                        this.cardStatus = true;
+                    }
+                },
+
+                selectAmount: function(amount, index){
+                    var Li = document.getElementById('amountList').getElementsByTagName('li');
+                    var length = Li.length;
+                    for(var i=0; i<length; i++){
+                        Li[i].classList.remove('active');
+                    }
+                    document.getElementById(index).parentNode.classList.add('active');
+                    
+                    for(var i=0; i<this.amountList.length; i++){
+                        if(index == i){
+                            this.oilbeanQty = this.amountList[i].giftPointsQty;
+                            this.oilPowerQty = this.amountList[i].giftCoinsQty;
+                            this.amount = this.amountList[i].amount;
+                        }
+                    }
+                    this.isCustomizeStatus = true;
+                    if(index == 5){
+                        this.showCustomizeAmount = true;
+                        this.isCustomizeStatus = false;
+
+                        if(Number(this.customizeamount) > 0){
+                            this.isCustomizeStatus = true;
+                            if(this.cardStatus && this.agreementStatus){
+                                this.chargeStatus = false;
+                            }
+                            this.oilbeanQty = Number(this.customizeamount) *  0.02;
+                            this.oilPowerQty = Number(this.customizeamount) *  0.03;
+                        }else{
+                            this.chargeStatus = true;
+                        }
+                    }else{
+                        if(this.cardStatus && this.agreementStatus){
+                            this.chargeStatus = false;
+                        }else{
+                            this.chargeStatus = true;
+                        }
+                    }
+                },
+
+                checkRadio: function(){
+                    this.agreementStatus = true;
+
+                    if(this.cardStatus && this.isCustomizeStatus){
+                        this.chargeStatus = false;
+                    }
+                },
+
+                confirmAmount: function(){
+                    if(!this.customizeamount){
+                        this.$toast('请输入100的倍数金额');
+                        return false;
+                    }
+                    if(Number(this.customizeamount) % 100 != 0){
+                        this.$toast('请输入100的倍数金额');
+                    }else{
+                        if(Number(this.customizeamount) > 1000){
+                            this.$toast('最多只能充1000元');
+                        }else{
+                            this.isCustomizeStatus = true;
+                            if(this.agreementStatus && this.cardStatus){
+                                this.chargeStatus = false;
+                            }
+                            this.customizeText = this.customizeamount + '元';
+                            this.oilbeanQty = Number(this.customizeamount) *  0.02;
+                            this.oilPowerQty = Number(this.customizeamount) *  0.03;
+                            this.amount = this.customizeamount;
+                            this.cancel();
+                        }
+                    }
+                },
+
+                cancel: function(){
+                    this.showCustomizeAmount = false;
+                },
+
+                chargeNow: function(){
+                    var cardNumber = this.myCardList[this.cardIndex].oilCardNo;
+                    var planId = this.salesPlansList[0].id;
+                    var payType = 1;
+                    var amount = this.amount;
+                    var input = {
+                        oilCardNo: cardNumber,
+                        salesPlanId: planId,
+                        payMethod: payType,
+                        amount: amount,
+                        tradeSource: 'JSAPI',
+                        weChatOpenId: fetchLocalStorage('_wechatOpenId')
+                    };
+                    this.$indicator.open();
+                    this.chargeStatus = true;
+                    commonAjax(this,'/api/services/app/UserAsset/InstantRecharge','post',input,this.submitSuccess,this.submitError);
+                },
+
+                submitSuccess: function(data){
+                    if(data.data.success){
+                        app.$indicator.close();
+                        this.chargeStatus = false;
+                    }else{
+                        this.$indicator.close();
+                        this.chargeStatus = false;
+                        this.$toast('充值失败');
+                    }
+                },
+
+                submitError: function(err){
+                    this.$indicator.close();
+                    this.chargeStatus = false;
+                }
+            }
+        })
+    </script>
+</body>
+</html>

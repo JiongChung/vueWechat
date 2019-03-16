@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/fans.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="fans-page">
+    <div id="app" v-cloak>
+        <mt-header title="我的油粉">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="fans-item">
+            <h2>我的推荐人</h2>
+            <div class="referrer-box clearfix">
+                <span class="name">{{myReferrer.account}}</span>
+                <span class="level">{{myReferrer.grade}}</span>
+            </div>
+        </div>
+        <div class="fans-item">
+            <h2>我推荐的用户</h2>
+            <ol>
+                <li class="clearfix">
+                    <span class="time">时间</span>
+                    <span class="name">帐号</span>
+                    <span class="level">级别</span>
+                </li>
+            </ol>
+            <mt-loadmore :top-method="loadTop" @top-status-change="handleTopChange" ref="loadmore">
+                <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+                    <li class="clearfix" v-for="item in myFansList">
+                        <span class="time">{{item.joinDateTime}}</span>
+                        <span class="name">{{item.account}}</span>
+                        <span class="level">{{item.grade}}</span>
+                    </li>
+                </ul>
+                <div slot="top" class="mint-loadmore-top">
+                    <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓ 下拉刷新</span>
+                    <span v-show="topStatus === 'loading'">加载中...</span>
+                </div>
+            </mt-loadmore>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                skipCount: 0,
+                topStatus: '',
+                isNodata: false,
+                loading: false,
+                myFansList: [],
+                myReferrer: {
+                    account: '',
+                    grade: ''
+                }
+            },
+            mounted: function(){
+            },
+            methods: {
+                loadTop: function(){
+                    this.skipCount = 0;
+                    this.loadData('/api/services/app/MyProfile/GetOilFans?maxResultCount=20&skipCount=',this.skipCount);
+                    this.$refs.loadmore.onTopLoaded();
+                },
+
+                onTopLoaded: function(){
+                },
+                
+                handleTopChange(status) {
+                    this.topStatus = status;
+                },
+
+                loadMore: function(){
+                    if(this.isNodata)return;
+                    if(!this.loading){
+                        this.loadData('/api/services/app/MyProfile/GetOilFans?maxResultCount=20&skipCount=',this.skipCount);
+                    }
+                    this.loading = true;
+                },
+
+                loadData: function(apiUrl, skipCount){
+                    apiUrl = apiUrl + skipCount;
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.myFansList = data.body.result.myFans.items;
+                        this.myReferrer = data.body.result.myReferrer;
+                        
+
+                        if(this.topStatus == 'pull' || this.topStatus == 'loading'){                            
+                            this.myFansList = data.body.result.myFans.items;
+                        }else{
+                            this.myFansList.push.apply(this.myFansList,data.body.result.myFans.items);
+                        }
+                        this.topStatus = '';
+                        this.totalCount = data.body.result.myFans.totalCount;
+                        this.loading = false;
+                        this.skipCount += 20;
+                        this.isNodata = false;
+                        if(this.skipCount >= this.totalCount){
+                            this.isNodata = true;
+                            this.$toast('没有更多数据了');
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+            }
+        })
+    </script>
+</body>
+</html>

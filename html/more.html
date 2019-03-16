@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/more.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="更多">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="more-list">
+            <ul>
+                <li><a href="setting.html"><span class="img"><i class="icon iconfont">&#xe63c;</i></span>个人设置</a></li>
+                <li><a href="contact.html"><span class="img"><i class="icon iconfont">&#xe63b;</i></span>联系我们</a></li>
+                <li><a href="aboutus.html"><span class="img"><i class="icon iconfont">&#xe63d;</i></span>关于我们</a></li>
+                <li><a href="faq.html"><span class="img"><i class="icon iconfont">&#xe63a;</i></span>FAQ常见问题</a></li>
+            </ul>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                
+            },
+            mounted: function(){
+            },
+            methods: {
+               
+            }
+        })
+    </script>
+</body>
+</html>

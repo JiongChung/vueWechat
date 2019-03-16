@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/iconfont.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body class="login-page">
+    <div id="app" v-cloak>
+        <div class="logo">
+            <i class="icon iconfont">&#xe628;</i>   
+        </div>
+        <div class="login-item">
+            <mt-field  placeholder="请输入手机号码" v-on:input="watchphoneNumber" type="number" v-model="userNameOrEmailAddress"></mt-field>
+            <mt-field  placeholder="请输入至少6位密码" v-on:input="watchpassword" type="password"  v-model="password"></mt-field>
+            <mt-button type="danger" size="large" :disabled="isDisabled" @click.native="login">登录</mt-button>
+        </div>
+    </div>
+
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                userNameOrEmailAddress: '',
+                password: '',
+                isDisabled: true,
+                userNmaeIsOk: false,
+                passwordIsOk: false
+            },
+            mounted: function(){
+            },
+            methods: {
+                login: function(){
+                    let input = {
+                        userNameOrEmailAddress: this.userNameOrEmailAddress,
+                        password: this.password
+                    };
+                    let apiUrl = API + '/api/TokenAuth/Authenticate';
+
+                    this.$http.post(apiUrl,input).then(function(response)  {
+                        if(response.data.success){
+                            this.$toast('登录成功');
+                            setCookie('user',JSON.stringify(response.data.result));
+                            setTimeout(function(){
+                                goBack();
+                            },1500);
+                        }
+                    }).catch(error => {
+                        this.$toast(error.body.error.message);
+                    });
+                },
+
+                watchform: function(){
+                    if(this.userNmaeIsOk && this.passwordIsOk){
+                        this.isDisabled = false;
+                    }else{
+                        this.isDisabled = true;
+                    }
+                },
+
+                watchphoneNumber: function(e){
+                    if(!zValidate.phone(e)){
+                        this.userNmaeIsOk = false;
+                    }else{
+                        this.userNmaeIsOk = true;
+                    }
+
+                    this.watchform();
+                },
+
+                watchpassword: function(e){
+                    if(e.length < 6){
+                        this.passwordIsOk = false;
+                    }else{
+                        this.passwordIsOk = true;
+                    }
+
+                    this.watchform();
+                }
+            }
+        })
+    </script>
+</body>
+</html>

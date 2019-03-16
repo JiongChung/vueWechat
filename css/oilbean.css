@@ -1,0 +1,89 @@
+.oilbean-item{
+    padding: 1.5rem;
+    border-bottom: solid 0.5rem #f4f4f4;
+}
+.oilbean-item ul{
+    display: flex
+}
+.oilbean-item li{
+    flex: 1;
+    text-align: center;
+    color: #bbbbbb;
+    position: relative;
+}
+
+
+.oilbean-item .options{
+   padding-top: 1rem;
+}
+
+.oilbean-item .options a{
+   display: block;
+   width: 80%;
+   padding: 1rem 0;
+   font-size: 1.4rem;
+   color: #ffffff;
+   background: #ffbd49;
+   text-align: center;
+   border-radius: 0.3rem;
+   margin: auto;
+}
+
+.oilbean-item li:before{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 60%;
+    display: block;
+    content: "";
+    bottom: 0;
+    margin: auto;
+    background: #eeeeee
+}
+
+.oilbean-item li:last-child:before{
+    display: none;
+}
+
+.oilbean-item li b{
+    font-size: 2rem;
+    color: #ee0000;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+
+
+.oilbean-list{
+    padding: 1rem 1.5rem;
+}
+
+.oilbean-list li{
+    border-top: dashed 1px #eee;
+    padding: 1rem 0;
+    overflow: hidden;
+    font-size: 1.4rem;
+}
+
+.oilbean-list li:first-child{
+    border-top: none;
+}
+
+.oilbean-list li span{
+    float: left;
+    width: 28%;
+}
+.oilbean-list li span:nth-child(2){
+    text-align: center;
+    width: 50%;
+}
+.oilbean-list li span:nth-child(3){
+    text-align: right;
+    width: 22%;
+}
+.oilbean-list ol{
+    font-weight: 600;
+}
+.oilbean-list ul li span:last-child{
+    color: #00eba5
+}

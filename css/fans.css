@@ -1,0 +1,59 @@
+.fans-item{
+    padding: 1rem 1.5rem;
+}
+
+.fans-item h2{
+    font-weight: normal;
+    font-size: 1.6rem;
+    padding-bottom: 1rem;
+}
+
+.referrer-box{
+    background: #f4f4f4;
+    padding: 1rem 1.5rem;
+    font-size: 1.4rem;
+}
+
+.referrer-box .name{
+    float: left;
+}
+.referrer-box .level{
+    float: right;
+}
+.fans-item li{
+    padding: 1rem 0;
+    position: relative;
+    font-size: 1.4rem;
+}
+.fans-item li + li:before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border-top: dashed 1px #eeeeee;
+    display: block;
+    content: "";
+}
+.fans-item li span{
+    float: left;
+    width: 28%;
+}
+.fans-item li span:nth-child(2){
+    width: 44%;
+    text-align: center;
+}
+.fans-item li span:last-child{
+    text-align: right;
+}
+.fans-item ol{
+    font-weight: 600
+}
+.fans-item ol li{
+    padding-bottom: 0.5rem;
+}
+.fans-item ol li span:last-child {
+    padding-right: 1rem
+}
+.fans-item ol li span:first-child{
+    padding-left: 1rem
+}

@@ -1,0 +1,75 @@
+.oilcard-item{
+    margin: 0 1.5rem;
+    padding: 1rem 0;
+}
+.oilcard-item .text{
+    position: absolute;
+    bottom: 1rem;
+    left: 2rem;
+    color: #ffffff;
+    font-size: 1.6rem;
+    display: block;
+    text-align: center;
+}
+.oilcard-item .remove{
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    color: #ffffff;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.oilcard-main{
+    border-top: solid 0.5rem #f4f4f4;
+    margin-top: 1rem;
+    padding: 0 1.5rem;
+}
+
+.oilcard-main h4{
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: normal;
+    padding: 1.5rem 0 1rem;
+}
+.oilcard-main dt{
+    line-height: 3rem;
+    font-size: 1.4rem;
+}
+.oilcard-main dd{
+    padding-left: 2.8rem;
+    padding-bottom: 1rem;
+}
+.oilcard-main .iconfont{
+    color: #fbb846;
+    font-size: 2rem;
+    margin-right: 1rem;
+    float: left;
+}
+
+.tips-item{
+    color: #ff0000;
+}
+.tips-item p{
+    padding: 0.3rem 0;
+    line-height: 1.5;
+}
+.apply-oilcard{
+    padding: 2rem 3rem 1rem;
+    display: flex
+}
+.apply-oilcard a{
+    flex: 1;
+    padding: 1.5rem 0;
+    text-align: center;
+    background: #ee0000;
+    color: #ffffff;
+    font-size: 1.4rem;
+    border-radius: 2rem 0 0 2rem ;
+}
+
+.apply-oilcard a:last-child{
+    border-radius: 0 2rem 2rem 0;
+    background: #ffae00;
+}

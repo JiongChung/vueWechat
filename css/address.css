@@ -1,0 +1,178 @@
+.address-item{
+    padding: 1.5rem;
+    font-size: 1.4rem;
+}
+
+.address-item li{
+    padding: 1rem 1.5rem 0;
+    border-radius: 1rem;
+    border: solid 1px #eeeeee;
+    margin-bottom: 1.5rem;
+}
+
+.address-item li .address{
+    display: block;
+    line-height: 1.5;
+    margin-top: 1rem;
+}
+
+.address-item li .default{
+    background: #ee0000;
+    color: #ffffff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 1.2rem;
+}
+.address-item li .tags{
+    background: blue;
+    color: #ffffff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 1.2rem;
+}
+
+.address-item li .name,
+.address-item li .phone,
+.address-item li .default{
+    margin-right: 0.2rem;
+}
+
+.address-item li .options{
+    display: flex;
+    position: relative;
+    margin-top: 1rem;
+}
+
+.address-item li .options:before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #eeeeee;
+    display: block;
+    content: "";
+}
+
+.address-item li .options b{
+    flex: 1;
+    padding: 1.5rem 0;
+    text-align: center;
+    font-weight: normal;
+    position: relative;
+}
+.address-item li .options b:first-child:before{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    content: "";
+    background: #eeeeee;
+    width: 1px;
+    height: 30%;
+    margin: auto;
+}
+
+.address-page{
+    padding-bottom: 6rem;
+}
+
+.add-address-item{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5rem;
+    line-height: 5rem;
+    background: #ef4f4f;
+    color: #ffffff;
+    font-size: 1.6rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.editaddress-item{
+    position: fixed;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.editaddress-item.show{
+    top: 0;
+}
+
+.address-main{
+    height: 100%;
+    background: #ffffff;
+    transition:bottom 0.3s ease-in-out 0.1s;
+    position: relative;
+    bottom: -100%;
+}
+
+.editaddress-item.show .address-main{
+    bottom: 0;
+    transition:bottom 0.3s ease-in-out 0.1s;
+}
+
+.addressbox li{
+    border-bottom: dashed 1px #eeeeee;
+    position: relative;
+    padding-left: 8rem;
+    font-size: 1.4rem;
+}
+.addressbox li .title{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: 2rem;
+    line-height: 2rem;
+    margin: auto;
+    left: 1.5rem;
+}
+.addressbox{
+    padding: 1.5rem 0 0
+}
+.addressbox li input,
+.addressbox li .inputbox{
+    padding: 1.5rem 1rem;
+    border:none;
+    width: 100%;
+    position: relative;
+}
+.nodata{
+    text-align: center;
+    padding: 3rem 0;
+    font-size: 1.6rem;
+}
+
+.mint-badge.is-size-normal{
+    margin-right: 1rem;
+    background: #ffffff;
+    border:solid 1px #eeeeee;
+    color: #000000;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+.mint-badge.is-size-normal.active{
+    background: #ee0000;
+    color: #ffffff;
+    border-color: #ee0000;
+}
+
+.addressbox li .inputbox .iconfont{
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    right: 1.5rem;
+    margin: auto;
+    height: 2rem;
+    line-height: 2rem;
+}
+.addressbox .button{
+    padding: 2rem 1.5rem 0;
+}
+

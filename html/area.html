@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/area.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="我的区域">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="reward-item">
+            <ul>
+                <li>
+                    <b>{{reward.todayRecharge}}</b>
+                    今日充值
+                </li>
+                <li>
+                    <b>{{reward.monthlyTotalRecharge}}</b>
+                    当月充值
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <b>{{reward.todayCommission}}</b>
+                    今日奖励
+                </li>
+                <li>
+                    <b>{{reward.monthlyTotalCommission}}</b>
+                    当月奖励
+                </li>
+            </ul>
+        </div>
+        <div class="agentlist-item">
+            <h2>合伙人信息</h2>
+            <ol>
+                <li>
+                   <span class="title">帐号</span>
+                   <span class="time">注册日期</span>
+                </li>
+            </ol>
+            <mt-loadmore :top-method="loadTop" @top-status-change="handleTopChange" ref="loadmore">
+                <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+                    <li class="clearfix" v-for="item in agentList">
+                        <span class="title">
+                            <b class="img">
+                                <img :src="item.agentLogo" alt="" v-if="item.agentLogo">
+                                <img src="../images/buddha_icon.png" alt="" v-else>
+                            </b>
+                            {{item.agentAcount}}
+                        </span>
+                        <span class="time">{{item.agentTime}}</span>
+                    </li>
+                </ul>
+                <div slot="top" class="mint-loadmore-top">
+                    <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓ 下拉刷新</span>
+                    <span v-show="topStatus === 'loading'">加载中...</span>
+                </div>
+            </mt-loadmore>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var app = new Vue({
+            el: '#app',
+            data:{
+                reward: {
+                    monthlyTotalCommission: 0,
+                    monthlyTotalRecharge: 0,
+                    todayCommission: 0,
+                    todayRecharge: 0
+                },
+                skipCount: 0,
+                totalCount: 0,
+                topStatus: '',
+                loading: false,
+                isNodata: false,
+                agentList: []
+            },
+            mounted: function(){
+            },
+            methods: {
+                loadTop: function(){
+                    this.skipCount = 0;
+                    this.loadData('/api/services/app/MyProfile/GetMyAgentArea?maxResultCount=20&skipCount=',this.skipCount);
+                    this.$refs.loadmore.onTopLoaded();
+                },
+
+                onTopLoaded: function(){
+                },
+                
+                handleTopChange(status) {
+                    this.topStatus = status;
+                },
+
+                loadMore: function(){
+                    if(this.isNodata)return;
+                    if(!this.loading){
+                        this.loadData('/api/services/app/MyProfile/GetMyAgentArea?maxResultCount=20&skipCount=',this.skipCount);
+                    }
+                    this.loading = true;
+                },
+
+                loadData: function(apiUrl, skipCount){
+                    apiUrl = apiUrl + skipCount;
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.reward.monthlyTotalCommission = data.body.result.monthlyTotalCommission;
+                        this.reward.monthlyTotalRecharge = data.body.result.monthlyTotalRecharge;
+                        this.reward.todayCommission = data.body.result.todayCommission;
+                        this.reward.todayRecharge = data.body.result.todayRecharge;
+                        this.agentList = data.body.result.agentList.items;
+
+                        if(this.topStatus == 'pull' || this.topStatus == 'loading'){                            
+                            this.agentList = data.body.result.agentList.items;
+                        }else{
+                            this.agentList.push.apply(this.agentList,data.body.result.agentList.items);
+                        }
+                        this.topStatus = '';
+                        this.totalCount = data.body.result.agentList.totalCount;
+                        this.loading = false;
+                        this.skipCount += 20;
+                        this.isNodata = false;
+                        if(this.skipCount >= this.totalCount){
+                            this.isNodata = true;
+                            this.$toast('没有更多数据了');
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+            }
+        })
+    </script>
+</body>
+</html>

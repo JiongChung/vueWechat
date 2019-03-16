@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/more.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="联系我们">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="contact-item">
+            <dl>
+                <dt>客服微信</dt>
+                <dd>ronglian_888</dd>
+            </dl>
+            <dl>
+                <dt>官方微信</dt>
+                <dd>zhihuiyoulian</dd>
+            </dl>
+            <dl>
+                <dt>电子邮箱</dt>
+                <dd>ronglian@cneltd.com</dd>
+            </dl>
+            <dl>
+                <dt>服务时间</dt>
+                <dd>每周一至周五 <span>（09:30—12:00，13:00—18:00）</span></dd>
+            </dl>
+            <dl>
+                <dt>温馨提示</dt>
+                <dd>服务时间外可添加客服微信留言呦！</dd>
+            </dl>
+            <ul>
+                <li><img src="../images/qrcode.png" alt=""></li>
+                <li><img src="../images/kefu.png" alt=""></li>
+            </ul>
+        </div>
+        <div class="contact-tel-item">
+            <a href="tel:07568991431">拨打客服电话：0756-8991431</a>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                
+            },
+            mounted: function(){
+                
+            },
+            methods: {
+                
+            }
+        })
+    </script>
+</body>
+</html>

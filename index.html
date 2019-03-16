@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/mint-ui.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/oilprice.css">
+    <link rel="stylesheet" href="css/iconfont.css">
+    <script src="js/vue.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/commonService.js"></script>
+</head>
+<body class="fix-header-height home-page">
+    <div id="app" v-cloak>
+        <mt-header fixed title="智慧油联"></mt-header>
+        <banner-component :banner-list="bannerList" :banner-height="bannerHeight"></banner-component>
+        <oilprice-component :oil-price="oilPrice"></oilprice-component>
+        <div class="home-charge-item">
+            <ul class="clearfix">
+                <li @click="chargeNow(0)">
+                    <img src="images/recharge_icon.png">
+                    <h2>即时充值</h2>
+                    <span>赠送5%消费补贴</span>
+                </li>
+                <li @click="chargeNow(1)">
+                    <img src="images/Groupon_icon.png">
+                    <h2>团购充值</h2>
+                    <span>最低6.7折 等额到账</span>
+                </li>
+            </ul>
+        </div>
+        <div class="home-tools-item">
+            <h1>一站式服务，全方位保障</h1>
+            <div class="tools-list">
+                <ul>
+                    <li>
+                        <span class="img"><i class="icon iconfont">&#xe621;</i></span>
+                        <span class="text">
+                            支持欧粤/<br />中石油/中石化
+                        </span>
+                    </li>
+                    <li>
+                        <span class="img"><i class="icon iconfont">&#xe623;</i></span>
+                        <span class="text">
+                            招商银行监管<br />100%安全
+                        </span>
+                    </li>
+                    <li>
+                        <span class="img"><i class="icon iconfont">&#xe61c;</i></span>
+                        <span class="text">
+                            多种加油套餐<br />越加越省
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- <mt-button @click.native="handleClick">Button</mt-button> -->
+        <footer-component :is-active="isActive"></footer-component>
+    </div>
+
+    <script src="components/homeBanner.js"></script>
+    <script src="components/homeOilPrice.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="js/mint-ui.js"></script>
+    <script src="js/vue-resource.js"></script>
+    <script>
+        var bannerComponent = Vue.extend({
+            template: homeBannerHtml,
+            props: ['bannerHeight','bannerList'],
+            methods: {
+                clickImage: function(index){
+                    console.log(index)
+                }
+            }
+        });
+        Vue.component('banner-component', bannerComponent);
+
+        var oilpriceComponent = Vue.extend({
+            template: homeOilPriceHtml,
+            props: ['oilPrice'],
+        });
+        Vue.component('oilprice-component', oilpriceComponent);
+
+        var footerComponent = Vue.extend({
+            template: footerHtml,
+            props: ['isActive'],
+            methods: {
+                openFooter: function(id){
+                    if(id == 1){
+                        window.location.href = 'html/find.html';
+                    }else if(id == 3){
+                        window.location.href = 'html/transference.html';
+                    }else if(id == 4){
+                        window.location.href = 'html/user.html';
+                    }
+                }
+            }
+        });
+        Vue.component('footer-component', footerComponent);
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                bannerList: [],
+                bannerHeight: 0,
+                msg: 'hello',
+                oilPrice: {
+                    p92: 0,
+                    p95: 0,
+                    p0: 0
+                },
+                isActive: [true,false,false,false,false]
+            },
+            mounted: function(){
+                this.bannerHeight = document.body.clientWidth * 7 / 15;
+                this.GetHomeSlide(API + '/api/services/app/AppSetting/GetHomeSlide');
+                this.GetOilPrice('http://route.showapi.com/138-46?showapi_sign=5a28f7d50c0742a7b0db52dc273867e8&showapi_timestamp='+formatDateTime());
+            },
+            methods: {
+                handleClick: function() {
+                    this.$toast('Hello world!')
+                },
+
+                GetHomeSlide: function(apiUrl){
+                    this.$http.get(apiUrl).then(function(response) {
+                       this.bannerList = response.data.result.slide;
+                    }).catch(error => {
+                        console.log(error)
+                    });
+                },
+                
+                GetOilPrice: function(apiUrl){
+                    this.$http.get(apiUrl).then(function(response) {
+                        var oilPriceList = response.data.showapi_res_body.list;
+                        for(var i=0; i<oilPriceList.length; i++){
+                            if(oilPriceList[i].prov == '广东'){
+                                this.oilPrice = oilPriceList[i];
+                                break;
+                            }
+                        }
+                        
+                    }).catch(error => {
+                        console.log(error)
+                    });
+                },
+
+                chargeNow: function(id){
+                    if(id == 0){
+                        window.location.href = 'html/immediatecharge.html';
+                    }else{
+                        window.location.href = 'html/teamcharge.html';
+                    }
+                }
+            }
+        })
+      </script>
+</body>
+</html>

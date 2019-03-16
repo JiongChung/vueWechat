@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mint-ui.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/chargerecord.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/commonService.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <mt-header title="充值记录">
+            <mt-button icon="back" onclick="goBack()" slot="left"></mt-button>
+        </mt-header>
+        <div class="record-item">
+            <ul>
+                <li>
+                    <b>{{myAsset.totalAmount}}</b>
+                    总充值金额
+                </li>
+                <li>
+                    <b>{{myAsset.availableAmount}}</b>
+                    可用金额
+                </li>
+            </ul>
+        </div>
+        <div class="record-list">
+            <ol>
+                <li>
+                    <span class="time">时间</span>
+                    <span class="title">类型</span>
+                    <span class="num">金额</span>
+                </li>
+            </ol>
+            <mt-loadmore :top-method="loadTop" @top-status-change="handleTopChange" ref="loadmore">
+                <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="20">
+                    <li v-for="item in myAssetList">
+                        <span class="time">{{item.usedTime}}</span>
+                        <span class="title">{{item.typeName}}</span>
+                        <span class="num">{{item.amount}}元</span>
+                    </li>
+                </ul>
+                <div slot="top" class="mint-loadmore-top">
+                    <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓ 下拉刷新</span>
+                    <span v-show="topStatus === 'loading'">加载中...</span>
+                </div>
+            </mt-loadmore>
+        </div>
+    </div>
+    <script src="../js/mint-ui.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <script>
+        if(checkLogin()){
+            window.location.href = 'login.html';
+        }
+        var app = new Vue({
+            el: '#app',
+            data:{
+                myAsset: {
+                    totalAmount: 0,
+                    availableAmount: 0,
+                },
+                skipCount: 0,
+                totalCount: 0,
+                topStatus: '',
+                loading: false,
+                isNodata: false,
+                myAssetList: []
+            },
+            mounted: function(){
+            },
+            methods: {
+                loadTop: function(){
+                    this.skipCount = 0;
+                    this.loadData('/api/services/app/MyProfile/GetMyCash?maxResultCount=20&skipCount=',this.skipCount);
+                    this.$refs.loadmore.onTopLoaded();
+                },
+
+                onTopLoaded: function(){
+                },
+                
+                handleTopChange(status) {
+                    this.topStatus = status;
+                },
+
+                loadMore: function(){
+                    if(this.isNodata)return;
+                    if(!this.loading){
+                        this.loadData('/api/services/app/MyProfile/GetMyCash?maxResultCount=20&skipCount=',this.skipCount);
+                    }
+                    this.loading = true;
+                },
+
+                loadData: function(apiUrl, skipCount){
+                    apiUrl = apiUrl + skipCount;
+                    this.$indicator.open();
+                    commonAjax(this,apiUrl,'get','',this.loadDataSuccess,this.loadDataError);
+                },
+                
+                loadDataSuccess: function(data){
+                    this.$indicator.close();
+                    if(data.body.success){
+                        this.myAsset = data.body.result.myAsset;
+                        this.myAssetList = data.body.result.myAssetLogs.items;
+                        if(this.topStatus == 'pull' || this.topStatus == 'loading'){                      
+                            this.myAssetList = data.body.result.myAssetLogs.items;
+                        }else{
+                            this.myAssetList.push.apply(this.myAssetList,data.body.result.myAssetLogs.items);
+                        }
+                        this.topStatus = '';
+                        this.totalCount = data.body.result.myAssetLogs.totalCount;
+                        this.loading = false;
+                        this.skipCount += 20;
+                        this.isNodata = false;
+                        if(this.skipCount >= this.totalCount){
+                            this.isNodata = true;
+                            this.$toast('没有更多数据了');
+                        }
+                    }
+                },
+
+                loadDataError: function(err){
+                    this.$indicator.close();
+                    console.log(err);
+                },
+            }
+        })
+    </script>
+</body>
+</html>

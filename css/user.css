@@ -1,0 +1,130 @@
+.user-page{
+    padding-bottom: 4rem;
+}
+
+.header-item{
+    background: #ee0000;
+    color: #ffffff;
+    padding: 1.5rem;
+}
+.user-info {
+    padding-left: 6rem;
+    position: relative;
+    min-height: 5rem;
+}
+.user-info .img{
+    width: 5rem;
+    height: 5rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.user-info .name{
+    display: block;
+    padding: 0.8rem 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+.user-info .level{
+    display: inline-block;
+    background-color: #4B565B;
+    color: #F8e71c;
+    padding: 0.3rem 0.5rem;
+    border-radius: 1rem;
+
+}
+.user-info .img img{
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+}
+
+.user-info .setting{
+    position: absolute;
+    right: 0;
+    top: 0.5rem;
+}
+.user-info .setting a{
+    color: #ffffff;
+    display: block;
+}
+
+.user-info .setting .iconfont{
+    font-size: 1.8rem;
+    color: #ffffff
+}
+
+.assets-item{
+    display: flex;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-top: 1rem;
+}
+.assets-item span{
+    flex: 1;
+    display: block;
+    padding: 0.5rem 0;
+    text-align: center;
+    font-size: 1.4rem;
+}
+.assets-item span a{
+    display: block;
+    height: 100%;
+    color: #ffffff
+}
+
+.assets-item span em{
+    font-style: normal;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+
+.menu-item{
+    padding: 1rem 1.5rem;
+}
+.menu-item li{
+    float: left;
+    width: 33.3333%;
+    text-align: center;
+}
+
+.menu-item li a{
+    display: block;
+    padding: 1rem 0;
+    font-size: 1.4rem;
+}
+.menu-item li .img{
+    display: block;
+    height: 3.5rem;
+}
+.menu-item li .iconfont{
+    font-size: 3rem;
+    color: rgb(252, 213, 57);
+}
+
+.menu-item li .irecord{
+    color: rgb(249, 84, 87);
+    font-size: 4rem;
+    position: relative;
+    top: -0.3rem;
+}
+
+.menu-item li .ifan{
+    color: rgb(246, 117, 151);
+}
+
+.menu-item li .iarea{
+    color: rgb(112, 145, 255);
+}
+
+.menu-item li .ibankcard{
+    color: rgb(255, 68, 112);
+}
+
+.menu-item li .imore{
+    color: rgb(241, 104, 223);
+}
+
+.share-item{
+    padding: 0.5rem 1.5rem 1rem;
+}

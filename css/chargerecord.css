@@ -1,0 +1,65 @@
+.record-item{
+    padding: 1.5rem;
+    border-bottom: solid 0.5rem #f4f4f4;
+}
+
+.record-item ul{
+    display: flex;
+}
+.record-item li{
+    flex: 1;
+    text-align: center;
+    color: #bbbbbb;
+    position: relative;
+}
+
+.record-item li:first-child:before{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 60%;
+    display: block;
+    content: "";
+    bottom: 0;
+    margin: auto;
+    background: #eeeeee
+}
+
+.record-item li b{
+    font-size: 3rem;
+    color: #ee0000;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+
+.record-list{
+    padding: 1rem 1.5rem;
+}
+
+.record-list li{
+    border-top: dashed 1px #eee;
+    padding: 1rem 0;
+    overflow: hidden;
+    font-size: 1.4rem;
+}
+
+.record-list li:first-child{
+    border-top: none;
+}
+
+.record-list li span{
+    float: left;
+    width: 28%;
+}
+.record-list li span:nth-child(2){
+    text-align: center;
+    width: 50%;
+}
+.record-list li span:nth-child(3){
+    text-align: right;
+    width: 22%;
+}
+.record-list ol{
+    font-weight: 600;
+}

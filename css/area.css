@@ -1,0 +1,96 @@
+.reward-item{
+    padding: 1.5rem;
+    border-bottom: solid 0.5rem #f4f4f4;
+}
+.reward-item ul{
+    display: flex;
+    position: relative;
+}
+.reward-item ul:first-child{
+    padding-bottom: 1.5rem;
+}
+
+.reward-item li{
+    flex: 1;
+    text-align: center;
+    color: #bbbbbb;
+    position: relative;
+}
+
+.reward-item li:first-child:before{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 60%;
+    display: block;
+    content: "";
+    bottom: 0;
+    margin: auto;
+    background: #eeeeee
+}
+
+.reward-item li b{
+    font-size: 3rem;
+    color: #ee0000;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+
+.agentlist-item{
+    padding: 1rem 1.5rem 0;
+}
+
+.agentlist-item h2{
+    font-size: 1.6rem;
+    text-align: center;
+    padding: 0.5rem 0 1rem;
+    font-weight: normal;
+}
+
+.agentlist-item ol{
+    overflow: hidden;
+    color: #ccc
+}
+.agentlist-item li{
+    font-size: 1.4rem;
+    min-height: 2rem;
+    line-height: 2rem;
+    border-top: dashed 1px #eee;
+    padding: 1rem 0;
+}
+.agentlist-item li span{
+    float: left;
+    width: 70%;
+    padding-left: 2.5rem;
+    position: relative;
+}
+.agentlist-item li span:last-child{
+    width: 30%;
+    text-align: right;
+    padding-left: 0;
+}
+
+.agentlist-item li .img{
+    width: 2rem;
+    height: 2rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.agentlist-item li .img img{
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+}
+
+.agentlist-item ol .title{
+    padding-left: 25%;
+}
+.agentlist-item ol li{
+    border:none;
+    padding: 0
+}
+.agentlist-item ul li:first-child{
+    border:none;
+}
